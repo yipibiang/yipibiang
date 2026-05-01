@@ -1,0 +1,57 @@
+# 本文件是 CODING_STANDARDS.md 的可机读约束版，解释见源文件。
+
+## 1. 项目上下文
+Spring Boot 3.2 + JDK 21 + Maven | Vue 3 + TypeScript + pnpm workspace | MySQL 8 + Flyway | Spring Security + JWT | Hexagonal Architecture | Docker Compose
+
+## 2. 六边形架构约束（最高优先级）
+分层：interfaces → application → domain ← infrastructure
+- domain 层：纯 POJO，零框架依赖，无 @Entity/@Repository
+- Repository 接口定义在 domain，实现在 infrastructure/persistence/
+- 禁止反向依赖：domain 不可依赖 application/interfaces/infrastructure
+
+## 3. 安全红线（禁止触碰）
+- 禁止硬编码密钥/密码/Token → 必须从环境变量或 .env 读取
+- 禁止接口返回明文密码
+- 禁止 JWT 中存放密码或敏感个人信息
+- 禁止提交 .env 到 Git（仅 .env.example）
+- 敏感信息禁止写入日志
+
+## 4. 代码质量
+- DTO 用 record 或 @Getter @Builder（禁止 @Data）
+- Controller 参数必须用 @RequestBody DTO（禁止 Map）
+- 所有 DTO 必加 JSR-303 校验注解
+- 方法 ≤ 50 行；工具/配置类 ≤ 80 行
+- MapStruct 生成对象映射（禁止 BeanUtils）
+- 统一响应 { "code": 200, "message": "OK", "data": {} }
+- 禁止 System.out.println、魔法数字、未捕获 RuntimeException
+- public 类/方法必加英文注释
+
+## 5. MyBatis 规范
+- XML 在 resources/mapper/；参数全用 `#{...}`，禁止 `${...}` 拼接 SQL
+
+## 6. 数据库规范
+- Flyway 命名：V{版本}__{描述}.sql（如 V1__init_user.sql）
+- 表名：tb_user 全小写下划线；禁止修改已应用迁移
+
+## 7. Dockerfile 规范
+- 所有 Dockerfile 放 deployments/ 目录下
+- 构建上下文从项目根目录传入
+- 多阶段构建：build (maven:3.9-eclipse-temurin-21-alpine) → runtime (eclipse-temurin:21-jre-alpine)
+
+## 8. 日志规范
+- Logback + Logstash Encoder JSON 格式
+- 必含字段：traceId, spanId, timestamp, level, logger, message
+
+## 9. 测试要求
+- 每个 Controller/UseCase 至少一个测试
+- 覆盖：正常流 + 参数校验 + 权限拒绝 + 资源不存在 + 业务异常
+- 禁止 @Disabled 或空测试；集成测试用 Testcontainers
+
+## 10. 禁止事项
+- 禁生成无关代码 | 禁跳验证节点 | 禁自动 git push
+- 禁违反六边形依赖方向 | domain 禁 MyBatis
+- 改 .gitignore/.dockerignore/.cursorrules 须在 commit 说明原因
+
+## 11. 生成顺序
+骨架：1.平台环境 → 2.CI/CD → 3.服务骨架 → 4.可观测 + Flyway → 5.认证安全
+迭代阶段顺序可调，但不验证节点不得跳过，不违反分层约束。
