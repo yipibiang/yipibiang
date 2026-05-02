@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [dev, test, main]
+  pull_request:
+    branches: [dev, test, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [21]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests -f apps/services/user-service/pom.xml
+
+      - name: Run tests
+        run: mvn test -f apps/services/user-service/pom.xml
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-service-jar
+          path: apps/services/user-service/target/user-service-1.0.0-SNAPSHOT.jar
+
+  docker-build:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: user-service-jar
+          path: apps/services/user-service/target/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/services/user-service/
+          file: apps/services/user-service/deployments/Dockerfile.test
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/user-service:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest
