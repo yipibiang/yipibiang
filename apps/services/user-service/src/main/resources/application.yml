@@ -1,0 +1,51 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+  
+  datasource:
+    url: jdbc:mysql://${DB_HOST:0.0.0.0}:${DB_PORT:3306}/${DB_NAME:monorepo}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:mysql_db_pw}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.userservice.domain
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info
+  endpoint:
+    health:
+      show-details: always
+
+jwt:
+  secret: ${JWT_SECRET:your_jwt_secret_here_min_32_chars}
+  access-token-expire-seconds: ${JWT_ACCESS_TOKEN_EXPIRE_SECONDS:1800}
+  refresh-token-expire-seconds: ${JWT_REFRESH_TOKEN_EXPIRE_SECONDS:604800}
+
+logging:
+  config: classpath:logback-spring.xml
