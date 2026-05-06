@@ -26,12 +26,12 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        # 编译并打包，-am 确保把 java-common 也一起编译了
-        run: mvn clean package -DskipTests -pl apps/services/user-service -am
+        # 编译并打包
+        run: mvn clean package -DskipTests -f apps/services/user-service/pom.xml
 
       - name: Run tests
         # 单独运行测试（可选，如果测试失败这里会阻断流程）
-        run: mvn test -pl apps/services/user-service -am
+        run: mvn test -f apps/services/user-service/pom.xml
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
@@ -70,8 +70,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          # Context 依然是根目录，这样 Dockerfile 才能找到 apps/... 路径
-          context: .
+          # Context 设为 user-service 目录，Dockerfile 的 COPY target/*.jar 才能正确匹配
+          context: ./apps/services/user-service
           file: ./apps/services/user-service/deployments/Dockerfile
           push: true
           tags: |
