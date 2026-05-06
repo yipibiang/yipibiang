@@ -1,4 +1,4 @@
-name: CI
+name: CI and Build Image
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
     branches: [dev, test, main]
 
 jobs:
+  # --- 阶段 1: 编译与测试 ---
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -25,30 +26,36 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests -f apps/services/user-service/pom.xml
+        # 编译并打包，-am 确保把 java-common 也一起编译了
+        run: mvn clean package -DskipTests -pl apps/services/user-service -am
 
       - name: Run tests
-        run: mvn test -f apps/services/user-service/pom.xml
+        # 单独运行测试（可选，如果测试失败这里会阻断流程）
+        run: mvn test -pl apps/services/user-service -am
 
-      - name: Upload build artifact
+      - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
         with:
           name: user-service-jar
-          path: apps/services/user-service/target/user-service-1.0.0-SNAPSHOT.jar
+          # 上传构建好的 jar 包
+          path: apps/services/user-service/target/*.jar
 
+  # --- 阶段 2: 构建 Docker 镜像 ---
   docker-build:
-    needs: build
+    needs: build # 依赖 build 任务成功
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' # 只有 push 操作才构建镜像（PR 不构建）
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download build artifact
+      - name: Download JAR Artifact
         uses: actions/download-artifact@v4
         with:
           name: user-service-jar
+          # 【关键】下载位置必须模拟出 target 目录结构
+          # 因为 Dockerfile 里写的是 COPY target/*.jar
           path: apps/services/user-service/target/
 
       - name: Set up Docker Buildx
@@ -60,11 +67,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: apps/services/user-service/
-          file: apps/services/user-service/deployments/Dockerfile.test
+          # Context 依然是根目录，这样 Dockerfile 才能找到 apps/... 路径
+          context: .
+          file: ./apps/services/user-service/deployments/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/user-service:${{ github.sha }}

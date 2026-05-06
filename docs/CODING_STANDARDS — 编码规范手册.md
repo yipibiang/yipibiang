@@ -1,120 +1,120 @@
-﻿# CODING\_STANDARDS 鈥?缂栫爜瑙勮寖鎵嬪唽
+# CODING\_STANDARDS �?编码规范手册
 
-> 鏈枃妗ｆ槸 ADR-001 鐨勫疄鏂界粏鑺傝ˉ鍏咃紝渚涗汉闃呰锛堝挨鍏舵槸鏂版垚鍛?onboarding锛夈€侫I 缂栫▼鎸囦护瑙侀」鐩牴鐩綍 
+> 本文档是 ADR-001 的实施细节补充，供人阅读（尤其是新成�?onboarding）。AI 编程指令见项目根目录 
 >
 > `.cursorrules`
 >
-> 銆?
+> �?
 
 
 ***
 
-## 涓€銆佸悗绔紪鐮佽鑼?
-### 1.1 鍖呬笌鍛藉悕
+## 一、后端编码规�?
+### 1.1 包与命名
 
 
 
-| 瑙勮寖椤?          | 瑕佹眰                                                                        |
+| 规范�?          | 要求                                                                        |
 | ------------- | ------------------------------------------------------------------------- |
-| 鏍瑰寘            | `com.by.microservices.{妯″潡鍚峿`                                              |
-| Entity        | `domain/entity/` 涓嬶紝绫诲悕棣栧瓧姣嶅ぇ鍐欙紙濡?`User.java`锛?                                |
-| Repository 鎺ュ彛 | `domain/repository/` 涓嬶紝绾帴鍙ｏ紙鏃犱换浣曟鏋舵敞瑙ｏ級锛屽懡鍚嶅悗缂€ `Repository`                     |
-| DTO           | `application/dto/` 涓嬶紝鎸夌敤閫旀坊鍔犲悗缂€锛歚Command`锛堝懡浠わ級銆乣Query`锛堟煡璇級銆乣Response`锛堝搷搴旓級     |
-| Controller    | `interfaces/rest/` 涓嬶紝鍛藉悕鍚庣紑 `Controller`                                    |
-| 搴旂敤鏈嶅姟          | `application/service/` 涓嬶紝鍛藉悕鍚庣紑 `ApplicationService`                        |
-| 鐢ㄤ緥瀹炵幇          | `application/usecase/` 涓嬶紝鍛藉悕鍓嶇紑 `{涓氬姟鍔ㄤ綔} + UseCase`锛堝 `RegisterUserUseCase`锛?|
+| 根包            | `com.by.microservices.{模块名}`                                              |
+| Entity        | `domain/entity/` 下，类名首字母大写（�?`User.java`�?                                |
+| Repository 接口 | `domain/repository/` 下，纯接口（无任何框架注解），命名后缀 `Repository`                     |
+| DTO           | `application/dto/` 下，按用途添加后缀：`Command`（命令）、`Query`（查询）、`Response`（响应）     |
+| Controller    | `interfaces/rest/` 下，命名后缀 `Controller`                                    |
+| 应用服务          | `application/service/` 下，命名后缀 `ApplicationService`                        |
+| 用例实现          | `application/usecase/` 下，命名前缀 `{业务动作} + UseCase`（如 `RegisterUserUseCase`�?|
 
-### 1.2 DTO 瑙勮寖
+### 1.2 DTO 规范
 
 
 
-* 浼樺厛浣跨敤 Java 16+ `record`锛堜笉鍙彉瀵硅薄锛夛紝澶嶆潅鍦烘櫙杈呬互 Lombok `@Getter @Builder`锛堢姝?`@Data` 閬垮厤 Setter锛?
-* 蹇呴』娣诲姞 JSR-303 鏍￠獙娉ㄨВ锛坄@NotBlank`銆乣@NotNull`銆乣@Email`銆乣@Size` 绛夛級锛屾槑纭瓧娈电害鏉?
-* 绂佹浣跨敤 `Map`銆乣JSONObject` 鎴栨棤绫诲瀷瀵硅薄鎺ユ敹 Controller 鍙傛暟
+* 优先使用 Java 16+ `record`（不可变对象），复杂场景辅以 Lombok `@Getter @Builder`（禁�?`@Data` 避免 Setter�?
+* 必须添加 JSR-303 校验注解（`@NotBlank`、`@NotNull`、`@Email`、`@Size` 等），明确字段约�?
+* 禁止使用 `Map`、`JSONObject` 或无类型对象接收 Controller 参数
 
-* 瀛楁鍛藉悕閲囩敤灏忛┘宄帮紙涓?JSON 搴忓垪鍖栦繚鎸佷竴鑷达級
+* 字段命名采用小驼峰（�?JSON 序列化保持一致）
 
 
 
 ```
-// 鉁?姝ｇ‘锛坮ecord 鏂瑰紡锛屾帹鑽愶級
+// �?正确（record 方式，推荐）
 
 public record RegisterUserCommand(
 
-&#x20;   @NotBlank(message = "閭涓嶈兘涓虹┖")
+&#x20;   @NotBlank(message = "邮箱不能为空")
 
-&#x20;   @Email(message = "閭鏍煎紡涓嶆纭?)
+&#x20;   @Email(message = "邮箱格式不正�?)
 
 &#x20;   String email,
 
-&#x20;   @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
+&#x20;   @NotBlank(message = "密码不能为空")
 
-&#x20;   @Size(min = 8, max = 32, message = "瀵嗙爜闀垮害蹇呴』鍦?8-32 浣嶄箣闂?)
+&#x20;   @Size(min = 8, max = 32, message = "密码长度必须�?8-32 位之�?)
 
 &#x20;   String password,
 
-&#x20;   @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌?)
+&#x20;   @NotBlank(message = "用户名不能为�?)
 
-&#x20;   @Size(min = 2, max = 20, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪 2-20 浣嶄箣闂?)
+&#x20;   @Size(min = 2, max = 20, message = "用户名长度必须在 2-20 位之�?)
 
 &#x20;   String username
 
 ) {}
 
-// 鉁?姝ｇ‘锛堝鏉傚満鏅?Lombok 鏂瑰紡锛?
+// �?正确（复杂场�?Lombok 方式�?
 @Getter
 
 @Builder
 
 public class UpdateUserInfoCommand {
 
-&#x20;   @NotNull(message = "鐢ㄦ埛ID涓嶈兘涓虹┖")
+&#x20;   @NotNull(message = "用户ID不能为空")
 
 &#x20;   private final Long userId;
 
-&#x20;   @Size(max = 20, message = "鏄电О闀垮害涓嶈兘瓒呰繃 20 浣?)
+&#x20;   @Size(max = 20, message = "昵称长度不能超过 20 �?)
 
 &#x20;   private final String nickname;
 
-&#x20;   @Pattern(regexp = "^1\[3-9]\\\d{9}\$", message = "鎵嬫満鍙锋牸寮忎笉姝ｇ‘")
+&#x20;   @Pattern(regexp = "^1\[3-9]\\\d{9}\$", message = "手机号格式不正确")
 
 &#x20;   private final String phone;
 
 }
 
-// 鉂?閿欒锛堟棤绫诲瀷绾︽潫锛?
+// �?错误（无类型约束�?
 public void register(@RequestBody Map> request) { ... }
 
-// 鉂?閿欒锛堢己灏戞牎楠屾敞瑙ｏ級
+// �?错误（缺少校验注解）
 
 public record LoginCommand(String username, String password) {}
 ```
 
-### 1.3 鍝嶅簲鏍煎紡
+### 1.3 响应格式
 
 
 
-* 鍏ㄥ眬缁熶竴鍝嶅簲鍖呰绫?\`ApiResponse 缁撴瀯鍥哄畾锛?
+* 全局统一响应包装�?\`ApiResponse 结构固定�?
 
 
 ```
 {
 
-&#x20; "code": 200,    // 鐘舵€佺爜锛?00 鎴愬姛锛岄潪 200 澶辫触锛?
-&#x20; "message": "OK",// 鎻愮ず淇℃伅锛堝け璐ユ椂杩斿洖鍏蜂綋鍘熷洜锛?
-&#x20; "data": {}      // 鍝嶅簲鏁版嵁锛堟垚鍔熸椂杩斿洖锛屽け璐ユ椂鍙负 null锛?
+&#x20; "code": 200,    // 状态码�?00 成功，非 200 失败�?
+&#x20; "message": "OK",// 提示信息（失败时返回具体原因�?
+&#x20; "data": {}      // 响应数据（成功时返回，失败时可为 null�?
 }
 ```
 
 
 
-* 閿欒鐮佺粺涓€浣跨敤鍏ㄥ眬鏋氫妇 `ErrorCode`锛岀姝㈢‖缂栫爜鏁板瓧
+* 错误码统一使用全局枚举 `ErrorCode`，禁止硬编码数字
 
-* 閫氳繃 `GlobalExceptionHandler` 缁熶竴鎹曡幏寮傚父骞惰繑鍥炴爣鍑嗘牸寮忥紝绂佹 Controller 涓墜鍔ㄦ崟鑾峰悗鑷畾涔夎繑鍥?
+* 通过 `GlobalExceptionHandler` 统一捕获异常并返回标准格式，禁止 Controller 中手动捕获后自定义返�?
 
 
 ```
-// 鍏ㄥ眬鍝嶅簲绫荤ず渚?
+// 全局响应类示�?
 @Getter
 
 public class ApiResponse> {
@@ -125,21 +125,21 @@ public class ApiResponse> {
 
 &#x20;   private final T data;
 
-&#x20;   // 鎴愬姛鍝嶅簲锛堝甫鏁版嵁锛?
+&#x20;   // 成功响应（带数据�?
 &#x20;   public static \<T> success(T data) {
 
 &#x20;       return new ApiResponse.getCode(), ErrorCode.SUCCESS.getMessage(), data);
 
 &#x20;   }
 
-&#x20;   // 鎴愬姛鍝嶅簲锛堟棤鏁版嵁锛?
+&#x20;   // 成功响应（无数据�?
 &#x20;   public static \<T> ApiResponse success() {
 
 &#x20;       return success(null);
 
 &#x20;   }
 
-&#x20;   // 澶辫触鍝嶅簲
+&#x20;   // 失败响应
 
 &#x20;   public static > ApiResponse(ErrorCode errorCode) {
 
@@ -149,12 +149,12 @@ public class ApiResponse> {
 
 }
 
-// 鍏ㄥ眬寮傚父澶勭悊鍣ㄧず渚?
+// 全局异常处理器示�?
 @RestControllerAdvice
 
 public class GlobalExceptionHandler {
 
-&#x20;   // 鍙傛暟鏍￠獙寮傚父
+&#x20;   // 参数校验异常
 
 &#x20;   @ExceptionHandler(MethodArgumentNotValidException.class)
 
@@ -164,13 +164,13 @@ public class GlobalExceptionHandler {
 
 &#x20;               .map(FieldError::getDefaultMessage)
 
-&#x20;               .collect(Collectors.joining("锛?));
+&#x20;               .collect(Collectors.joining("�?));
 
 &#x20;       return ApiResponse.fail(ErrorCode.PARAM\_VALIDATION\_FAILED.setMessage(message));
 
 &#x20;   }
 
-&#x20;   // 涓氬姟寮傚父
+&#x20;   // 业务异常
 
 &#x20;   @ExceptionHandler(BusinessException.class)
 
@@ -183,20 +183,20 @@ public class GlobalExceptionHandler {
 }
 ```
 
-### 1.4 瀵硅薄鏄犲皠
+### 1.4 对象映射
 
 
 
-* 蹇呴』浣跨敤 MapStruct 杩涜瀵硅薄杞崲锛圗ntity 鈫?DTO銆乂O 绛夛級锛岀紪璇戞湡鐢熸垚浠ｇ爜锛岄浂杩愯鏃跺紑閿€
+* 必须使用 MapStruct 进行对象转换（Entity �?DTO、VO 等），编译期生成代码，零运行时开销
 
-* 绂佹浣跨敤 `BeanUtils.copyProperties`锛堟祬鎷疯礉銆佹棤绫诲瀷鏍￠獙銆佹€ц兘宸級
+* 禁止使用 `BeanUtils.copyProperties`（浅拷贝、无类型校验、性能差）
 
-* MapStruct 鎺ュ彛鏀惧湪 `infrastructure/mapper/struct/` 鐩綍涓嬶紝鍛藉悕鍚庣紑 `Mapper`
+* MapStruct 接口放在 `infrastructure/mapper/struct/` 目录下，命名后缀 `Mapper`
 
 
 
 ```
-// MapStruct 杞崲鎺ュ彛绀轰緥
+// MapStruct 转换接口示例
 
 @Mapper(componentModel = "spring")
 
@@ -204,13 +204,13 @@ public interface UserStructMapper {
 
 &#x20;   UserStructMapper INSTANCE = Mappers.getMapper(UserStructMapper.class);
 
-&#x20;   // Entity 鈫?Response DTO
+&#x20;   // Entity �?Response DTO
 
 &#x20;   UserResponse toResponse(User user);
 
-&#x20;   // Command 鈫?Entity
+&#x20;   // Command �?Entity
 
-&#x20;   @Mapping(target = "id", ignore = true) // ID 鑷锛屽拷鐣ヨ祴鍊?
+&#x20;   @Mapping(target = "id", ignore = true) // ID 自增，忽略赋�?
 &#x20;   @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
 
 &#x20;   @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
@@ -222,44 +222,44 @@ public interface UserStructMapper {
 }
 ```
 
-### 1.5 鏂规硶闀垮害涓庡鏉傚害
+### 1.5 方法长度与复杂度
 
 
 
-| 鏂规硶绫诲瀷                      | 鏈€澶ц鏁?| 澶囨敞                       |
+| 方法类型                      | 最大行�?| 备注                       |
 | ------------------------- | ---- | ------------------------ |
-| 鏅€氫笟鍔℃柟娉曪紙Service / UseCase锛?| 50 琛?| 瓒呭嚭鍒欐媶鍒嗕负绉佹湁鏂规硶鎴栫嫭绔嬬被           |
-| 宸ュ叿绫绘柟娉?                    | 80 琛?| 鍏佽閫傚綋鏀惧锛屼絾闇€鍔犺缁嗘敞閲?          |
-| Controller 鏂规硶             | 20 琛?| 浠呭仛鍙傛暟鎺ユ敹銆佹潈闄愭牎楠屻€佽皟鐢ㄦ湇鍔★紝涓嶅寘鍚笟鍔￠€昏緫 |
-| MyBatis Mapper 鎺ュ彛鏂规硶       | 1 琛? | 浠呭畾涔夋柟娉曠鍚嶏紝SQL 鍐欏湪 XML 涓?    |
+| 普通业务方法（Service / UseCase�?| 50 �?| 超出则拆分为私有方法或独立类           |
+| 工具类方�?                    | 80 �?| 允许适当放宽，但需加详细注�?          |
+| Controller 方法             | 20 �?| 仅做参数接收、权限校验、调用服务，不包含业务逻辑 |
+| MyBatis Mapper 接口方法       | 1 �? | 仅定义方法签名，SQL 写在 XML �?    |
 
 
 
-* 鏂规硶鍙傛暟涓暟涓嶈秴杩?5 涓紝瓒呭嚭鍒欏皝瑁呬负 DTO
+* 方法参数个数不超�?5 个，超出则封装为 DTO
 
-* 绂佹宓屽瓒呰繃 3 灞傛潯浠跺垽鏂紙if/else銆乫or 寰幆锛夛紝閫氳繃鎻愬墠杩斿洖銆佺瓥鐣ユā寮忎紭鍖?
-### 1.6 娉ㄩ噴瑙勮寖
+* 禁止嵌套超过 3 层条件判断（if/else、for 循环），通过提前返回、策略模式优�?
+### 1.6 注释规范
 
 
 
-* **绫绘敞閲?*锛氭墍鏈?public 绫诲繀椤绘坊鍔?Javadoc 娉ㄩ噴锛岃鏄庣被鑱岃矗銆佷綔鑰呫€佸垱寤烘棩鏈?
-* **鏂规硶娉ㄩ噴**锛氭墍鏈?public 鏂规硶蹇呴』娣诲姞 Javadoc 娉ㄩ噴锛岃鏄庡姛鑳姐€佸弬鏁板惈涔夈€佽繑鍥炲€笺€佹姏鍑哄紓甯?
-* **瀛楁娉ㄩ噴**锛欴TO 鏍￠獙娉ㄨВ鐨?`message` 宸茶鏄庣害鏉熺殑锛屾棤闇€棰濆娉ㄩ噴锛涘鏉傚瓧娈碉紙濡傜姸鎬佺爜锛夐渶琛ュ厖璇存槑
+* **类注�?*：所�?public 类必须添�?Javadoc 注释，说明类职责、作者、创建日�?
+* **方法注释**：所�?public 方法必须添加 Javadoc 注释，说明功能、参数含义、返回值、抛出异�?
+* **字段注释**：DTO 校验注解�?`message` 已说明约束的，无需额外注释；复杂字段（如状态码）需补充说明
 
-* **澶嶆潅閫昏緫娉ㄩ噴**锛氱鏈夋柟娉曟垨澶嶆潅涓氬姟閫昏緫锛堝绠楁硶銆佸鏉′欢鍒ゆ柇锛夐渶娣诲姞琛屾敞閲婏紝璇存槑璁捐鎰忓浘
+* **复杂逻辑注释**：私有方法或复杂业务逻辑（如算法、多条件判断）需添加行注释，说明设计意图
 
-* **绂佹浜嬮」**锛氱姝㈢暀涓?`TODO`锛堣浆涓?GitHub Issue 骞舵爣娉ㄩ摼鎺ワ級銆乣FIXME` 绛変复鏃舵敞閲?
+* **禁止事项**：禁止留�?`TODO`（转�?GitHub Issue 并标注链接）、`FIXME` 等临时注�?
 
 
 ```
 /\*\*
 
-&#x20;\* 鐢ㄦ埛娉ㄥ唽鐢ㄤ緥瀹炵幇
+&#x20;\* 用户注册用例实现
 
-&#x20;\* 璐熻矗澶勭悊鐢ㄦ埛娉ㄥ唽鐨勬牳蹇冧笟鍔￠€昏緫锛氬弬鏁版牎楠屻€佸瘑鐮佸姞瀵嗐€佹暟鎹叆搴撱€佸彂閫佹敞鍐屼簨浠?
+&#x20;\* 负责处理用户注册的核心业务逻辑：参数校验、密码加密、数据入库、发送注册事�?
 &#x20;\*
 
-&#x20;\* @author 寮€鍙戣€呭鍚?
+&#x20;\* @author 开发者姓�?
 &#x20;\* @date 2026-04-29
 
 &#x20;\*/
@@ -276,37 +276,37 @@ public class RegisterUserUseCase {
 
 &#x20;   /\*\*
 
-&#x20;    \* 鎵ц鐢ㄦ埛娉ㄥ唽
+&#x20;    \* 执行用户注册
 
 &#x20;    \*
 
-&#x20;    \* @param command 娉ㄥ唽鍛戒护锛堝寘鍚偖绠便€佸瘑鐮併€佺敤鎴峰悕锛?
-&#x20;    \* @return 娉ㄥ唽鎴愬姛鐨勭敤鎴稩D
+&#x20;    \* @param command 注册命令（包含邮箱、密码、用户名�?
+&#x20;    \* @return 注册成功的用户ID
 
-&#x20;    \* @throws BusinessException 褰撻偖绠卞凡琚敞鍐屾椂鎶涘嚭
+&#x20;    \* @throws BusinessException 当邮箱已被注册时抛出
 
 &#x20;    \*/
 
 &#x20;   public Long execute(RegisterUserCommand command) {
 
-&#x20;       // 1. 鏍￠獙閭鏄惁宸叉敞鍐岋紙涓氬姟绾︽潫锛氶偖绠卞敮涓€锛?
+&#x20;       // 1. 校验邮箱是否已注册（业务约束：邮箱唯一�?
 &#x20;       if (userRepository.existsByEmail(command.email())) {
 
 &#x20;           throw new BusinessException(ErrorCode.EMAIL\_ALREADY\_REGISTERED);
 
 &#x20;       }
 
-&#x20;       // 2. 瀵嗙爜鍔犲瘑锛圔Crypt 鍔犵洂鍝堝笇锛?
+&#x20;       // 2. 密码加密（BCrypt 加盐哈希�?
 &#x20;       String encryptedPassword = passwordEncoder.encode(command.password());
 
-&#x20;       // 3. 杞崲涓?Entity 骞朵繚瀛?
+&#x20;       // 3. 转换�?Entity 并保�?
 &#x20;       User user = UserStructMapper.INSTANCE.toEntity(command);
 
 &#x20;       user.setPassword(encryptedPassword);
 
 &#x20;       User savedUser = userRepository.save(user);
 
-&#x20;       // 4. 鍙戦€佹敞鍐屾垚鍔熶簨浠讹紙寮傛閫氱煡鍏朵粬鏈嶅姟锛?
+&#x20;       // 4. 发送注册成功事件（异步通知其他服务�?
 &#x20;       eventPublisher.publish(new UserRegisteredEvent(savedUser.getId(), savedUser.getEmail()));
 
 &#x20;       return savedUser.getId();
@@ -316,42 +316,42 @@ public class RegisterUserUseCase {
 }
 ```
 
-### 1.7 绂佹浜嬮」
+### 1.7 禁止事项
 
 
 
-* 绂佹浣跨敤 `System.out.println`銆乣e.printStackTrace()`锛堢粺涓€浣跨敤 Logback 鏃ュ織妗嗘灦锛?
-* 绂佹纭紪鐮侀瓟娉曟暟瀛椼€佸瓧绗︿覆锛堟娊鍙栦负甯搁噺鎴栨灇涓撅紝甯搁噺绫绘斁鍦?`domain/constant/` 涓嬶級
+* 禁止使用 `System.out.println`、`e.printStackTrace()`（统一使用 Logback 日志框架�?
+* 禁止硬编码魔法数字、字符串（抽取为常量或枚举，常量类放�?`domain/constant/` 下）
 
-* 绂佹鎶涘嚭鏈崟鑾风殑 `RuntimeException`锛堣嚜瀹氫箟涓氬姟寮傚父 `BusinessException` 缁熶竴澶勭悊锛?
-* MyBatis 涓姝娇鐢?`${...}` 鎷兼帴 SQL锛堜粎鐢?`#{...}` 棰勭紪璇戯紝闃叉 SQL 娉ㄥ叆锛?
-* 绂佹鍦?`domain` 灞傚紩鍏ヤ换浣曟鏋朵緷璧栵紙濡?Spring `@Component`銆丮yBatis `@Mapper` 绛夛級
+* 禁止抛出未捕获的 `RuntimeException`（自定义业务异常 `BusinessException` 统一处理�?
+* MyBatis 中禁止使�?`${...}` 拼接 SQL（仅�?`#{...}` 预编译，防止 SQL 注入�?
+* 禁止�?`domain` 层引入任何框架依赖（�?Spring `@Component`、MyBatis `@Mapper` 等）
 
-* 绂佹浣跨敤 `static` 闈欐€佸彉閲忓瓨鍌ㄤ笟鍔＄姸鎬侊紙鏄撳紩鍙戝苟鍙戦棶棰橈級
+* 禁止使用 `static` 静态变量存储业务状态（易引发并发问题）
 
-* 绂佹鍦?Controller 涓紪鍐欎笟鍔￠€昏緫锛堜粎鍋氳姹傞€傞厤鍜屽搷搴斿寘瑁咃級
+* 禁止�?Controller 中编写业务逻辑（仅做请求适配和响应包装）
 
-### 1.8 MyBatis 瑙勮寖
+### 1.8 MyBatis 规范
 
 
 
-* Mapper 鎺ュ彛鏀惧湪 `infrastructure/persistence/` 涓嬶紝鍛藉悕鍚庣紑 `Mapper`
+* Mapper 接口放在 `infrastructure/persistence/` 下，命名后缀 `Mapper`
 
-* Mapper XML 鏂囦欢鏀惧湪 `src/main/resources/mapper/` 涓嬶紝涓?Mapper 鎺ュ彛鍚屽悕锛岀洰褰曠粨鏋勪竴鑷?
-* SQL 璇彞蹇呴』娣诲姞娉ㄩ噴锛岃鏄庡姛鑳藉拰鍙傛暟鍚箟
+* Mapper XML 文件放在 `src/main/resources/mapper/` 下，�?Mapper 接口同名，目录结构一�?
+* SQL 语句必须添加注释，说明功能和参数含义
 
-* 鍔ㄦ€?SQL 浼樺厛浣跨敤 `<if>`銆乣<foreach>`锛岀姝㈠瓧绗︿覆鎷兼帴
+* 动�?SQL 优先使用 `<if>`、`<foreach>`，禁止字符串拼接
 
-* 鏌ヨ缁撴灉蹇呴』鏄犲皠鍒板疄浣撶被鎴?DTO锛岀姝㈣繑鍥?\`List\<Map
+* 查询结果必须映射到实体类�?DTO，禁止返�?\`List\<Map
 
-* 鎵归噺鎿嶄綔浣跨敤 \` 閬垮厤寰幆璋冪敤鍗曟潯 SQL
+* 批量操作使用 \` 避免循环调用单条 SQL
 
-* 鍒嗛〉鏌ヨ蹇呴』浣跨敤 `PageHelper` 鎴?MyBatis-Plus 鍒嗛〉鎻掍欢锛岀姝㈡墜鍐?`LIMIT ? OFFSET ?`
+* 分页查询必须使用 `PageHelper` �?MyBatis-Plus 分页插件，禁止手�?`LIMIT ? OFFSET ?`
 
 
 
 ```
-\<!-- 鉁?姝ｇ‘绀轰緥 -->
+\<!-- �?正确示例 -->
 
 1.0" encoding="UTF-8"?>
 
@@ -361,7 +361,7 @@ public class RegisterUserUseCase {
 
 \="com.by.microservices.user.infrastructure.persistence.UserMapper">
 
-&#x20;   鍒楄〃锛堝垎椤碉級 -->
+&#x20;   列表（分页） -->
 
 &#x20;   UserList" resultType="com.by.microservices.user.application.dto.UserResponse">
 
@@ -404,30 +404,30 @@ public class RegisterUserUseCase {
 
 ***
 
-## 浜屻€佸墠绔紪鐮佽鑼?
-### 2.1 API 璋冪敤瑙勮寖
+## 二、前端编码规�?
+### 2.1 API 调用规范
 
 
 
-* API 鎺ュ彛缁熶竴鏀惧湪 `src/api/` 鐩綍涓嬶紝鎸変笟鍔℃ā鍧楀垝鍒嗘枃浠讹紙濡?`user.ts`銆乣order.ts`锛?
-* 鎵€鏈?API 鍑芥暟杩斿洖 `PromiseResponse浠?`@microservices/types\` 瀵煎叆锛堢姝㈡墜鍔ㄥ畾涔夛級
+* API 接口统一放在 `src/api/` 目录下，按业务模块划分文件（�?`user.ts`、`order.ts`�?
+* 所�?API 函数返回 `PromiseResponse�?`@microservices/types\` 导入（禁止手动定义）
 
-* 缁熶竴澶勭悊璇锋眰鎷︽埅鍣紙娣诲姞 Token锛夈€佸搷搴旀嫤鎴櫒锛堢粺涓€閿欒澶勭悊锛?
-* 鍑芥暟鍛藉悕閲囩敤灏忛┘宄帮紝鍓嶇紑鏄庣‘涓氬姟鍔ㄤ綔锛坄get`/`create`/`update`/`delete`锛?
+* 统一处理请求拦截器（添加 Token）、响应拦截器（统一错误处理�?
+* 函数命名采用小驼峰，前缀明确业务动作（`get`/`create`/`update`/`delete`�?
 
 
 ```
-// 鉁?姝ｇ‘绀轰緥
+// �?正确示例
 
 import type { User, UserQueryParams, PageResponse } from '@microservices/types';
 
-import { request } from '@/utils/request'; // 灏佽鍚庣殑璇锋眰宸ュ叿锛堝惈鎷︽埅鍣級
+import { request } from '@/utils/request'; // 封装后的请求工具（含拦截器）
 
 /\*\*
 
-&#x20;\* 鏌ヨ鐢ㄦ埛鍒楄〃锛堝垎椤碉級
+&#x20;\* 查询用户列表（分页）
 
-&#x20;\* @param params 鏌ヨ鍙傛暟
+&#x20;\* @param params 查询参数
 
 &#x20;\*/
 
@@ -451,9 +451,9 @@ export const getUserList = async (
 
 /\*\*
 
-&#x20;\* 鍒涘缓鐢ㄦ埛
+&#x20;\* 创建用户
 
-&#x20;\* @param data 鐢ㄦ埛鍒涘缓鍙傛暟
+&#x20;\* @param data 用户创建参数
 
 &#x20;\*/
 
@@ -470,59 +470,59 @@ export const createUser = async (data: Omitid'>): PromiseResponse  return reques
 };
 ```
 
-### 2.2 鐩綍缁撴瀯瑙勮寖锛坅dmin /web 閫氱敤锛?
+### 2.2 目录结构规范（admin /web 通用�?
 
 
 ```
 src/
 
-鈹溾攢鈹€ api/           # API 璋冪敤灞傦紙鎸夋ā鍧楀垝鍒嗭級
+├── api/           # API 调用层（按模块划分）
 
-鈹溾攢鈹€ views/         # 椤甸潰缁勪欢锛堣矾鐢卞搴旈〉闈級
+├── views/         # 页面组件（路由对应页面）
 
-鈹?  鈹溾攢鈹€ user/      # 涓氬姟妯″潡鐩綍
+�?  ├── user/      # 业务模块目录
 
-鈹?  鈹?  鈹溾攢鈹€ UserList.vue  # 鍒楄〃椤?
-鈹?  鈹?  鈹溾攢鈹€ UserDetail.vue # 璇︽儏椤?
-鈹?  鈹?  鈹斺攢鈹€ UserForm.vue  # 琛ㄥ崟椤?
-鈹溾攢鈹€ components/     # 鍏叡缁勪欢锛堝叏灞€澶嶇敤锛?
-鈹?  鈹溾攢鈹€ common/     # 閫氱敤缁勪欢锛堟寜閽€佽緭鍏ユ绛夛級
+�?  �?  ├── UserList.vue  # 列表�?
+�?  �?  ├── UserDetail.vue # 详情�?
+�?  �?  └── UserForm.vue  # 表单�?
+├── components/     # 公共组件（全局复用�?
+�?  ├── common/     # 通用组件（按钮、输入框等）
 
-鈹?  鈹斺攢鈹€ business/   # 涓氬姟缁勪欢锛堢敤鎴峰崱鐗囥€佽鍗曡〃鏍肩瓑锛?
-鈹溾攢鈹€ stores/        # 鐘舵€佺鐞嗭紙Pinia锛?
-鈹?  鈹溾攢鈹€ userStore.ts # 鐢ㄦ埛鐩稿叧鐘舵€?
-鈹?  鈹斺攢鈹€ appStore.ts  # 搴旂敤鍏ㄥ眬鐘舵€?
-鈹溾攢鈹€ router/        # 璺敱閰嶇疆锛堟寜妯″潡鎷嗗垎锛?
-鈹?  鈹溾攢鈹€ index.ts    # 璺敱鍏ュ彛
+�?  └── business/   # 业务组件（用户卡片、订单表格等�?
+├── stores/        # 状态管理（Pinia�?
+�?  ├── userStore.ts # 用户相关状�?
+�?  └── appStore.ts  # 应用全局状�?
+├── router/        # 路由配置（按模块拆分�?
+�?  ├── index.ts    # 路由入口
 
-鈹?  鈹斺攢鈹€ modules/    # 妯″潡璺敱
+�?  └── modules/    # 模块路由
 
-鈹?      鈹溾攢鈹€ userRouter.ts
+�?      ├── userRouter.ts
 
-鈹?      鈹斺攢鈹€ orderRouter.ts
+�?      └── orderRouter.ts
 
-鈹溾攢鈹€ utils/         # 宸ュ叿鍑芥暟锛堟牸寮忓寲銆佹牎楠岀瓑锛?
-鈹溾攢鈹€ styles/        # 鍏ㄥ眬鏍峰紡锛堜富棰樸€侀噸缃牱寮忕瓑锛?
-鈹斺攢鈹€ types/         # 鏈湴绫诲瀷琛ュ厖锛堝叡浜被鍨嬩紭鍏堜粠 packages/types 瀵煎叆锛?```
+├── utils/         # 工具函数（格式化、校验等�?
+├── styles/        # 全局样式（主题、重置样式等�?
+└── types/         # 本地类型补充（共享类型优先从 packages/types 导入�?```
 
-### 2.3 TypeScript 瑙勮寖
+### 2.3 TypeScript 规范
 
 
 
-* 绂佹浣跨敤 `any` 绫诲瀷锛堟湭鐭ョ被鍨嬬敤 `unknown` + 绫诲瀷瀹堝崼锛屼复鏃跺吋瀹圭敤 `// @ts-ignore` 骞舵爣娉ㄥ師鍥狅級
+* 禁止使用 `any` 类型（未知类型用 `unknown` + 类型守卫，临时兼容用 `// @ts-ignore` 并标注原因）
 
-* 鎺ュ彛 / 绫诲瀷瀹氫箟浼樺厛浣跨敤 `interface`锛堝彲鎵╁睍锛夛紝绠€鍗曠被鍨嬪埆鍚嶇敤 `type`
+* 接口 / 类型定义优先使用 `interface`（可扩展），简单类型别名用 `type`
 
-* 鍏变韩绫诲瀷蹇呴』浠?`@microservices/types` 瀵煎叆锛岀姝㈡墜鍔ㄥ鍒舵垨閲嶅瀹氫箟
+* 共享类型必须�?`@microservices/types` 导入，禁止手动复制或重复定义
 
-* 缁勪欢 Props 蹇呴』閫氳繃 `defineProps` 瀹氫箟骞舵寚瀹氱被鍨嬶紝绂佹鏃犵被鍨嬩紶閫?
-* 浜嬩欢閫氳繃 `defineEmits` 澹版槑锛屾槑纭弬鏁扮被鍨?
+* 组件 Props 必须通过 `defineProps` 定义并指定类型，禁止无类型传�?
+* 事件通过 `defineEmits` 声明，明确参数类�?
 
 
 ```
 ts">
 
-// 鉁?姝ｇ‘绀轰緥锛堢粍浠?Props 涓?Emits锛?
+// �?正确示例（组�?Props �?Emits�?
 import type { User } from '@microservices/types';
 
 const props = defineProps: User;
@@ -537,21 +537,21 @@ const emit = defineEmits (e: 'edit', userId: number): void;
 
 }>();
 
-// 鉁?姝ｇ‘绀轰緥锛堢被鍨嬪畧鍗級
+// �?正确示例（类型守卫）
 
 function formatUser(user: unknown): string {
 
 &#x20; if (typeof user !== 'object' || user === null) {
 
-&#x20;   return '鏈煡鐢ㄦ埛';
+&#x20;   return '未知用户';
 
 &#x20; }
 
-&#x20; const userObj = user as Partial return userObj.username || userObj.email || '鏈煡鐢ㄦ埛';
+&#x20; const userObj = user as Partial return userObj.username || userObj.email || '未知用户';
 
 }
 
-// 鉂?閿欒绀轰緥锛堢姝?any锛?
+// �?错误示例（禁�?any�?
 function handleUserData(data: any) {
 
 &#x20; console.log(data.username);
@@ -559,16 +559,16 @@ function handleUserData(data: any) {
 }
 ```
 
-### 2.4 缁勪欢瑙勮寖
+### 2.4 组件规范
 
 
 
-* 浼樺厛浣跨敤缁勫悎寮?API锛坄setup` 璇硶绯栵級锛岀姝㈤€夐」寮?API
+* 优先使用组合�?API（`setup` 语法糖），禁止选项�?API
 
-* 缁勪欢鍛藉悕閲囩敤 PascalCase锛堝 `UserForm.vue`锛夛紝涓?Vue 瀹樻柟鎺ㄨ崘涓€鑷?
-* 鍏叡缁勪欢娉ㄥ唽鍒板叏灞€锛屼笟鍔＄粍浠跺眬閮ㄥ鍏?
-* 缁勪欢鍐呴儴閫昏緫鎷嗗垎鍒?`composables/` 鐩綍锛堝 `useUserForm.ts`锛夛紝淇濇寔缁勪欢绠€娲?
-* 绂佹鍦ㄦā鏉夸腑缂栧啓澶嶆潅琛ㄨ揪寮忥紝鎻愬彇涓鸿绠楀睘鎬ф垨鏂规硶
+* 组件命名采用 PascalCase（如 `UserForm.vue`），�?Vue 官方推荐一�?
+* 公共组件注册到全局，业务组件局部导�?
+* 组件内部逻辑拆分�?`composables/` 目录（如 `useUserForm.ts`），保持组件简�?
+* 禁止在模板中编写复杂表达式，提取为计算属性或方法
 
 
 
@@ -583,7 +583,7 @@ function handleUserData(data: any) {
 
 &#x20;     {{ user.email }}
 
-&#x20;     鏃堕棿锛歿{ formatDateTime(user.createdAt) }}
+&#x20;     时间：{{ formatDateTime(user.createdAt) }}
 
 &#x20;        v-if="isEditable"
 
@@ -593,7 +593,7 @@ function handleUserData(data: any) {
 
 &#x20;   \>
 
-&#x20;     缂栬緫
+&#x20;     编辑
 
 &#x20;   \>
 
@@ -619,7 +619,7 @@ const emit = defineEmits (e: 'edit', userId: number): void;
 
 \>
 
-/\* 灞€閮ㄦ牱寮忥紝閬垮厤姹℃煋鍏ㄥ眬 \*/
+/\* 局部样式，避免污染全局 \*/
 
 .card-title {
 
@@ -631,62 +631,62 @@ const emit = defineEmits (e: 'edit', userId: number): void;
 
 \---
 
-\## 涓夈€佹暟鎹簱瑙勮寖
+\## 三、数据库规范
 
-\### 3.1 Flyway 杩佺Щ瑙勮寖
+\### 3.1 Flyway 迁移规范
 
-\- 鑴氭湰鍛藉悕鏍煎紡锛歕`V{鐗堟湰鍙穧\_\_{鍔熻兘鎻忚堪}.sql\`锛堢増鏈彿閫掑锛屽弻涓嬪垝绾垮垎闅旓級锛岀ず渚嬶細\`V1\_\_init\_user\_table.sql\`銆乗`V2\_\_add\_user\_nickname\_column.sql\`
+\- 脚本命名格式：\`V{版本号}\_\_{功能描述}.sql\`（版本号递增，双下划线分隔），示例：\`V1\_\_init\_user\_table.sql\`、\`V2\_\_add\_user\_nickname\_column.sql\`
 
-\- 姣忎釜鏈嶅姟鐙珛缁存姢杩佺Щ鑴氭湰锛屾斁鍦?\`src/main/resources/db/migration/\` 鐩綍涓?
-\- 杩佺Щ鑴氭湰蹇呴』鏄箓绛夌殑锛堝娆℃墽琛屾棤鍓綔鐢級锛屾柊澧炲瓧娈甸渶鎸囧畾榛樿鍊?
-\- 绂佹淇敼宸叉彁浜ゅ埌 Git 浠撳簱涓斿凡鍦ㄧ敓浜х幆澧冩墽琛岀殑杩佺Щ鑴氭湰锛堝闇€淇敼锛屾柊澧炶縼绉昏剼鏈級
+\- 每个服务独立维护迁移脚本，放�?\`src/main/resources/db/migration/\` 目录�?
+\- 迁移脚本必须是幂等的（多次执行无副作用），新增字段需指定默认�?
+\- 禁止修改已提交到 Git 仓库且已在生产环境执行的迁移脚本（如需修改，新增迁移脚本）
 
-\- 鑴氭湰涓繀椤绘坊鍔犳敞閲婏紝璇存槑杩佺Щ鐩殑鍜屽彉鏇村唴瀹?
+\- 脚本中必须添加注释，说明迁移目的和变更内�?
 \`\`\`sql
 
 \-- V2\_\_add\_user\_nickname\_column.sql
 
-\-- 涓虹敤鎴疯〃娣诲姞鏄电О瀛楁锛堥粯璁ょ┖瀛楃涓诧紝闈炲繀濉級
+\-- 为用户表添加昵称字段（默认空字符串，非必填）
 
 ALTER TABLE tb\_user
 
-ADD COLUMN nickname VARCHAR(20) NOT NULL DEFAULT '' COMMENT '鐢ㄦ埛鏄电О' AFTER username;
+ADD COLUMN nickname VARCHAR(20) NOT NULL DEFAULT '' COMMENT '用户昵称' AFTER username;
 
-\-- 涓烘樀绉版坊鍔犵储寮曪紙浼樺寲鏌ヨ锛?
+\-- 为昵称添加索引（优化查询�?
 CREATE INDEX idx\_tb\_user\_nickname ON tb\_user(nickname);
 ```
 
-### 3.2 琛ㄨ璁¤鑼?
+### 3.2 表设计规�?
 
 
-| 瑙勮寖椤? | 瑕佹眰                                                                               | 绀轰緥                                                                                                                                                                          |
+| 规范�? | 要求                                                                               | 示例                                                                                                                                                                          |
 | ---- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 琛ㄥ悕   | 鍏ㄥ皬鍐欙紝涓嬪垝绾垮垎闅旓紝鍓嶇紑 `tb_` + 涓氬姟妯″潡鍚?                                                      | `tb_user`锛堢敤鎴疯〃锛夈€乣tb_user_role`锛堢敤鎴疯鑹插叧鑱旇〃锛?                                                                                                                                     |
-| 瀛楁鍚? | 鍏ㄥ皬鍐欙紝涓嬪垝绾垮垎闅旓紝璇箟鏄庣‘                                                                   | `user_id`锛堢敤鎴?ID锛夈€乣login_time`锛堢櫥褰曟椂闂达級                                                                                                                                         |
-| 涓婚敭   | 缁熶竴鍛藉悕 `id`锛岀被鍨?`BIGINT AUTO_INCREMENT`锛堣嚜澧炰富閿級                                       | `id BIGINT AUTO_INCREMENT PRIMARY KEY`                                                                                                                                      |
-| 鏃堕棿鎴? | 蹇呴』鍖呭惈 `created_at`锛堝垱寤烘椂闂达級銆乣updated_at`锛堟洿鏂版椂闂达級锛岀被鍨?`DATETIME`锛岄粯璁ゅ€?`CURRENT_TIMESTAMP` | `created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '鍒涘缓鏃堕棿'`銆乣updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '鏇存柊鏃堕棿'` |
-| 杞垹闄? | 缁熶竴浣跨敤 `deleted` 瀛楁锛岀被鍨?`TINYINT`锛? = 鏈垹闄わ紝1 = 宸插垹闄わ級锛岄粯璁ゅ€?0                            | `deleted TINYINT NOT NULL DEFAULT 0 COMMENT '鏄惁鍒犻櫎锛?=鍚︼紝1=鏄級'`                                                                                                                |
-| 瀛楁绫诲瀷 | 鎸変笟鍔″満鏅€夋嫨鏈€灏忓彲琛岀被鍨嬶紙濡傛墜鏈哄彿鐢?`CHAR(11)` 鑰岄潪 `VARCHAR(20)`锛?                                | 鐢ㄦ埛鍚嶏細`VARCHAR(20)`銆佸瘑鐮佸搱甯岋細`CHAR(60)`锛圔Crypt 鍔犲瘑鍚庡浐瀹氶暱搴︼級                                                                                                                           |
-| 娉ㄩ噴   | 琛ㄥ拰瀛楁蹇呴』娣诲姞 `COMMENT` 娉ㄩ噴锛岃鏄庣敤閫?                                                      | `COMMENT '鐢ㄦ埛琛紙瀛樺偍鐢ㄦ埛鍩虹淇℃伅锛?`                                                                                                                                                   |
-| 绱㈠紩   | 鎸夋煡璇㈤鐜囨坊鍔犵储寮曪紝閬垮厤鍏ㄨ〃鎵弿锛涜仈鍚堢储寮曢伒寰€屾渶宸﹀墠缂€鍘熷垯銆?                                                 | 鐧诲綍鏌ヨ锛歚INDEX idx_tb_user_email (email)`锛涘垪琛ㄧ瓫閫夛細`INDEX idx_tb_user_status_create_time (status, created_at)`                                                                     |
+| 表名   | 全小写，下划线分隔，前缀 `tb_` + 业务模块�?                                                      | `tb_user`（用户表）、`tb_user_role`（用户角色关联表�?                                                                                                                                     |
+| 字段�? | 全小写，下划线分隔，语义明确                                                                   | `user_id`（用�?ID）、`login_time`（登录时间）                                                                                                                                         |
+| 主键   | 统一命名 `id`，类�?`BIGINT AUTO_INCREMENT`（自增主键）                                       | `id BIGINT AUTO_INCREMENT PRIMARY KEY`                                                                                                                                      |
+| 时间�? | 必须包含 `created_at`（创建时间）、`updated_at`（更新时间），类�?`DATETIME`，默认�?`CURRENT_TIMESTAMP` | `created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'`、`updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'` |
+| 软删�? | 统一使用 `deleted` 字段，类�?`TINYINT`�? = 未删除，1 = 已删除），默认�?0                            | `deleted TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除�?=否，1=是）'`                                                                                                                |
+| 字段类型 | 按业务场景选择最小可行类型（如手机号�?`CHAR(11)` 而非 `VARCHAR(20)`�?                                | 用户名：`VARCHAR(20)`、密码哈希：`CHAR(60)`（BCrypt 加密后固定长度）                                                                                                                           |
+| 注释   | 表和字段必须添加 `COMMENT` 注释，说明用�?                                                      | `COMMENT '用户表（存储用户基础信息�?`                                                                                                                                                   |
+| 索引   | 按查询频率添加索引，避免全表扫描；联合索引遵循「最左前缀原则�?                                                 | 登录查询：`INDEX idx_tb_user_email (email)`；列表筛选：`INDEX idx_tb_user_status_create_time (status, created_at)`                                                                     |
 
-### 3.3 SQL 缂栧啓瑙勮寖
+### 3.3 SQL 编写规范
 
 
 
-* 鍏抽敭瀛楀ぇ鍐欙紙`SELECT`銆乣FROM`銆乣WHERE`銆乣JOIN` 绛夛級锛岃〃鍚嶅拰瀛楁鍚嶅皬鍐欙紝鍖哄垎澶у皬鍐欐彁鍗囧彲璇绘€?
-* 澶氳〃鍏宠仈鏌ヨ蹇呴』浣跨敤琛ㄥ埆鍚嶏紝閬垮厤瀛楁姝т箟
+* 关键字大写（`SELECT`、`FROM`、`WHERE`、`JOIN` 等），表名和字段名小写，区分大小写提升可读�?
+* 多表关联查询必须使用表别名，避免字段歧义
 
-* 绂佹 `SELECT *`锛屾槑纭寚瀹氶渶瑕佹煡璇㈢殑瀛楁锛堝噺灏戞暟鎹紶杈撱€侀伩鍏嶅瓧娈靛彉鏇村奖鍝嶏級
+* 禁止 `SELECT *`，明确指定需要查询的字段（减少数据传输、避免字段变更影响）
 
-* `WHERE` 鏉′欢涓紭鍏堜娇鐢ㄧ储寮曞瓧娈碉紝閬垮厤浣跨敤 `!=`銆乣NOT IN`銆乣IS NULL` 绛夊鑷寸储寮曞け鏁堢殑鎿嶄綔
+* `WHERE` 条件中优先使用索引字段，避免使用 `!=`、`NOT IN`、`IS NULL` 等导致索引失效的操作
 
-* 鍒嗛〉鏌ヨ蹇呴』鎸囧畾 `ORDER BY`锛堥伩鍏嶅垎椤电粨鏋滀笉涓€鑷达級锛屼笖鎺掑簭瀛楁闇€娣诲姞绱㈠紩
+* 分页查询必须指定 `ORDER BY`（避免分页结果不一致），且排序字段需添加索引
 
 
 
 ```
-\-- 鉁?姝ｇ‘绀轰緥
+\-- �?正确示例
 
 SELECT
 
@@ -716,7 +716,7 @@ ORDER BY u.created\_at DESC
 
 LIMIT 10 OFFSET 20;
 
-\-- 鉂?閿欒绀轰緥锛圫ELECT \* + 鏃?ORDER BY + 绱㈠紩澶辨晥锛?
+\-- �?错误示例（SELECT \* + �?ORDER BY + 索引失效�?
 SELECT \* FROM tb\_user WHERE status != 0 LIMIT 10 OFFSET 20;
 ```
 
@@ -724,116 +724,116 @@ SELECT \* FROM tb\_user WHERE status != 0 LIMIT 10 OFFSET 20;
 
 ***
 
-## 鍥涖€丏ockerfile 瑙勮寖
+## 四、Dockerfile 规范
 
-### 4.1 閫氱敤瑕佹眰
+### 4.1 通用要求
 
 
 
-* 鎵€鏈夋湇鍔＄殑 Dockerfile 鏀惧湪 `deployments/` 鐩綍涓嬶紙濡?`apps/user-service/deployments/Dockerfile`锛?
-* 閲囩敤澶氶樁娈垫瀯寤猴紙Build Stage + Runtime Stage锛夛紝鍑忓皬闀滃儚浣撶Н
+* 所有服务的 Dockerfile 放在 `deployments/` 目录下（�?`apps/user-service/deployments/Dockerfile`�?
+* 采用多阶段构建（Build Stage + Runtime Stage），减小镜像体积
 
-* 鍩虹闀滃儚浼樺厛閫夋嫨 Alpine 鐗堟湰锛堣交閲忥級锛孞ava 鏈嶅姟浣跨敤 `eclipse-temurin:21-jre-alpine`锛堜粎鍚?JRE锛屼笉鍚?JDK锛?
-* 瀹瑰櫒鍐呯姝娇鐢?root 鐢ㄦ埛杩愯鏈嶅姟锛屽垱寤轰笓鐢ㄩ潪 root 鐢ㄦ埛
+* 基础镜像优先选择 Alpine 版本（轻量），Java 服务使用 `eclipse-temurin:21-jre-alpine`（仅�?JRE，不�?JDK�?
+* 容器内禁止使�?root 用户运行服务，创建专用非 root 用户
 
-* 鏆撮湶鏈嶅姟绔彛锛坄EXPOSE` 鎸囦护锛夛紝娉ㄦ槑绔彛鐢ㄩ€?
-### 4.2 鍚庣鏈嶅姟 Dockerfile 绀轰緥
+* 暴露服务端口（`EXPOSE` 指令），注明端口用�?
+### 4.2 后端服务 Dockerfile 示例
 
 
 
 ```
-\# 绗竴闃舵锛氭瀯寤猴紙Maven 鏋勫缓鐜锛?
+\# 第一阶段：构建（Maven 构建环境�?
 FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 
-\# 璁剧疆宸ヤ綔鐩綍
+\# 设置工作目录
 
 WORKDIR /app
 
-\# 澶嶅埗 pom.xml 鍜屼緷璧栨枃浠讹紝缂撳瓨渚濊禆锛堝姞閫熸瀯寤猴級
+\# 复制 pom.xml 和依赖文件，缓存依赖（加速构建）
 
 COPY pom.xml .
 
 COPY src ./src
 
-\# 鏋勫缓 Jar 鍖咃紙璺宠繃娴嬭瘯锛岀敓浜ф瀯寤洪渶绉婚櫎 -DskipTests锛?
+\# 构建 Jar 包（跳过测试，生产构建需移除 -DskipTests�?
 RUN mvn clean package -DskipTests -U
 
-\# 绗簩闃舵锛氳繍琛岋紙浠呭惈 JRE锛屽噺灏忛暅鍍忎綋绉級
+\# 第二阶段：运行（仅含 JRE，减小镜像体积）
 
 FROM eclipse-temurin:21-jre-alpine
 
-\# 鍒涘缓闈?root 鐢ㄦ埛锛堝畨鍏ㄦ渶浣冲疄璺碉級
+\# 创建�?root 用户（安全最佳实践）
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-\# 璁剧疆宸ヤ綔鐩綍
+\# 设置工作目录
 
 WORKDIR /app
 
-\# 浠庢瀯寤洪樁娈靛鍒?Jar 鍖?
+\# 从构建阶段复�?Jar �?
 COPY --from=builder /app/target/\*.jar app.jar
 
-\# 鎺堟潈缁欓潪 root 鐢ㄦ埛
+\# 授权给非 root 用户
 
 RUN chown -R appuser:appgroup /app
 
-\# 鍒囨崲鐢ㄦ埛
+\# 切换用户
 
 USER appuser
 
-\# 鏆撮湶鏈嶅姟绔彛锛堜笌 application.yml 涓€鑷达級
+\# 暴露服务端口（与 application.yml 一致）
 
 EXPOSE 8081
 
-\# 鍚姩鍛戒护锛堟寚瀹氱幆澧冨彉閲忥紝鏀寔閰嶇疆瑕嗙洊锛?
+\# 启动命令（指定环境变量，支持配置覆盖�?
 ENTRYPOINT \["java", "-jar", "app.jar", "--spring.profiles.active=\${SPRING\_PROFILES\_ACTIVE:dev}"]
 ```
 
-### 4.3 鍓嶇鏈嶅姟 Dockerfile 绀轰緥
+### 4.3 前端服务 Dockerfile 示例
 
 
 
 ```
-\# 绗竴闃舵锛氭瀯寤猴紙Node 鏋勫缓鐜锛?
+\# 第一阶段：构建（Node 构建环境�?
 FROM node:22.11.0-alpine AS builder
 
-\# 璁剧疆宸ヤ綔鐩綍
+\# 设置工作目录
 
 WORKDIR /app
 
-\# 澶嶅埗 package.json 鍜?pnpm-lock.yaml
+\# 复制 package.json �?pnpm-lock.yaml
 
 COPY package.json pnpm-lock.yaml ./
 
-\# 瀹夎 pnpm
+\# 安装 pnpm
 
 RUN npm install -g pnpm
 
-\# 瀹夎渚濊禆锛堢紦瀛樹緷璧栵級
+\# 安装依赖（缓存依赖）
 
 RUN pnpm install
 
-\# 澶嶅埗婧愪唬鐮?
+\# 复制源代�?
 COPY . .
 
-\# 鏋勫缓鐢熶骇鐗堟湰
+\# 构建生产版本
 
 RUN pnpm build
 
-\# 绗簩闃舵锛氳繍琛岋紙Nginx 闈欐€佹湇鍔″櫒锛?
+\# 第二阶段：运行（Nginx 静态服务器�?
 FROM nginx:alpine
 
-\# 浠庢瀯寤洪樁娈靛鍒舵瀯寤轰骇鐗╁埌 Nginx 闈欐€佺洰褰?
+\# 从构建阶段复制构建产物到 Nginx 静态目�?
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-\# 澶嶅埗 Nginx 閰嶇疆鏂囦欢锛堝闇€鑷畾涔夌鍙ｃ€佸弽鍚戜唬鐞嗙瓑锛?
+\# 复制 Nginx 配置文件（如需自定义端口、反向代理等�?
 COPY deployments/nginx.conf /etc/nginx/conf.d/default.conf
 
-\# 鏆撮湶绔彛
+\# 暴露端口
 
 EXPOSE 80
 
-\# 鍚姩 Nginx
+\# 启动 Nginx
 
 CMD \["nginx", "-g", "daemon off;"]
 ```
@@ -842,22 +842,22 @@ CMD \["nginx", "-g", "daemon off;"]
 
 ***
 
-## 浜斻€佸彲瑙傛祴瑙勮寖
+## 五、可观测规范
 
-### 5.1 鏃ュ織瑙勮寖
+### 5.1 日志规范
 
 
 
-* 鏃ュ織妗嗘灦锛歀ogback + Logstash Encoder锛岃緭鍑?JSON 鏍煎紡鏃ュ織锛堜究浜?Loki 鏀堕泦锛?
-* 鏃ュ織绾у埆锛歚ERROR`锛堥敊璇級銆乣WARN`锛堣鍛婏級銆乣INFO`锛堥噸瑕佷俊鎭級銆乣DEBUG`锛堣皟璇曚俊鎭級锛岀敓浜х幆澧冪鐢?`DEBUG`
+* 日志框架：Logback + Logstash Encoder，输�?JSON 格式日志（便�?Loki 收集�?
+* 日志级别：`ERROR`（错误）、`WARN`（警告）、`INFO`（重要信息）、`DEBUG`（调试信息），生产环境禁�?`DEBUG`
 
-* 蹇呴』鍖呭惈瀛楁锛歚traceId`锛堥摼璺拷韪?ID锛夈€乣spanId`锛堣法搴?ID锛夈€乣timestamp`锛堟椂闂存埑锛夈€乣level`锛堟棩蹇楃骇鍒級銆乣logger`锛堟棩蹇楀櫒鍚嶏級銆乣message`锛堟棩蹇椾俊鎭級銆乣serviceName`锛堟湇鍔″悕锛?
-* 鏁忔劅淇℃伅鑴辨晱锛氬瘑鐮併€乀oken銆佹墜鏈哄彿銆佽韩浠借瘉鍙风瓑鏁忔劅淇℃伅蹇呴』鑴辨晱鍚庤緭鍑猴紙濡傛墜鏈哄彿鏄剧ず涓?`138****1234`锛?
-* 鏃ュ織杈撳嚭浣嶇疆锛氭爣鍑嗚緭鍑猴紙STDOUT锛夛紝绂佹鍐欏叆鏈湴鏂囦欢锛堝鍣ㄥ寲閮ㄧ讲鏃ュ織閫氳繃 Docker 鏀堕泦锛?
+* 必须包含字段：`traceId`（链路追�?ID）、`spanId`（跨�?ID）、`timestamp`（时间戳）、`level`（日志级别）、`logger`（日志器名）、`message`（日志信息）、`serviceName`（服务名�?
+* 敏感信息脱敏：密码、Token、手机号、身份证号等敏感信息必须脱敏后输出（如手机号显示�?`138****1234`�?
+* 日志输出位置：标准输出（STDOUT），禁止写入本地文件（容器化部署日志通过 Docker 收集�?
 
 
 ```
-閰嶇疆绀轰緥 -->
+配置示例 -->
 
 \>
 
@@ -889,27 +889,27 @@ CMD \["nginx", "-g", "daemon off;"]
 
 &#x20;   \</root>
 
-&#x20;   妗嗘灦鏃ュ織绾у埆璋冩暣 -->
+&#x20;   框架日志级别调整 -->
 
 &#x20;   .springframework" level="WARN" />
 
 &#x20;   \="com.by.microservices" level="INFO" />
 ```
 
-### 5.2 閾捐矾杩借釜瑙勮寖
+### 5.2 链路追踪规范
 
 
 
-* 浣跨敤 OpenTelemetry 鑷姩鍩嬬偣锛屾棤闇€鎵嬪姩璋冪敤 `Tracer.getCurrentSpan()`
+* 使用 OpenTelemetry 自动埋点，无需手动调用 `Tracer.getCurrentSpan()`
 
-* 鎵€鏈夊井鏈嶅姟銆佺綉鍏炽€佹秷鎭槦鍒楀繀椤绘帴鍏ラ摼璺拷韪紝纭繚 `traceId` 璺ㄦ湇鍔°€佽法绾跨▼銆佽法娑堟伅浼犻€?
-* 鍏抽敭涓氬姟娴佺▼锛堝鐢ㄦ埛娉ㄥ唽銆佽鍗曞垱寤猴級闇€娣诲姞鑷畾涔夎法搴︼紙Span锛夛紝鏍囨敞涓氬姟鍔ㄤ綔
+* 所有微服务、网关、消息队列必须接入链路追踪，确保 `traceId` 跨服务、跨线程、跨消息传�?
+* 关键业务流程（如用户注册、订单创建）需添加自定义跨度（Span），标注业务动作
 
-* 閾捐矾杩借釜鏁版嵁瀵煎嚭鍒?Jaeger锛岄€氳繃 Jaeger UI 鏌ョ湅鍏ㄩ摼璺€楁椂鍜岃皟鐢ㄥ叧绯?
+* 链路追踪数据导出�?Jaeger，通过 Jaeger UI 查看全链路耗时和调用关�?
 
 
 ```
-// 鑷畾涔夐摼璺法搴︾ず渚嬶紙鍏抽敭涓氬姟娴佺▼锛?
+// 自定义链路跨度示例（关键业务流程�?
 @Service
 
 public class OrderCreateUseCase {
@@ -918,7 +918,7 @@ public class OrderCreateUseCase {
 
 &#x20;   public Long execute(CreateOrderCommand command) {
 
-&#x20;       // 鍒涘缓鑷畾涔夎法搴︼紝鏍囨敞涓氬姟鍔ㄤ綔
+&#x20;       // 创建自定义跨度，标注业务动作
 
 &#x20;       Span span = tracer.spanBuilder("order-create-usecase")
 
@@ -930,7 +930,7 @@ public class OrderCreateUseCase {
 
 &#x20;       try (Scope scope = span.makeCurrent()) {
 
-&#x20;           // 涓氬姟閫昏緫...
+&#x20;           // 业务逻辑...
 
 &#x20;           return orderId;
 
@@ -955,110 +955,110 @@ public class OrderCreateUseCase {
 
 ***
 
-## 鍏€丟it 瑙勮寖
+## 六、Git 规范
 
-### 6.1 鍒嗘敮绛栫暐
-
-
-
-* `main`锛氫富鍒嗘敮锛岀敓浜х幆澧冧唬鐮侊紝绂佹鐩存帴鎻愪氦
-
-* `develop`锛氬紑鍙戝垎鏀紝闆嗘垚娴嬭瘯閫氳繃鍚庡悎骞跺埌 `main`
-
-* `feature/{鍔熻兘鍚峿`锛氬姛鑳藉垎鏀紝浠?`develop` 鍒嗘敮鍒涘缓锛屽畬鎴愬悗鍚堝苟鍥?`develop`锛堝 `feature/user-register`锛?
-* `bugfix/{闂鎻忚堪}`锛歜ug 淇鍒嗘敮锛屼粠 `develop` 鍒嗘敮鍒涘缓锛屼慨澶嶅悗鍚堝苟鍥?`develop`锛堝 `bugfix/email-validation`锛?
-* `hotfix/{闂鎻忚堪}`锛氱揣鎬ヤ慨澶嶅垎鏀紝浠?`main` 鍒嗘敮鍒涘缓锛屼慨澶嶅悗鍚屾椂鍚堝苟鍒?`main` 鍜?`develop`锛堝 `hotfix/login-failure`锛?
-### 6.2 Commit 瑙勮寖
+### 6.1 分支策略
 
 
 
-* 鏍煎紡锛歚{type}: {subject}`锛堢被鍨嬶細绠€鐭弿杩帮級锛岀ず渚嬶細`feat: 瀹炵幇鐢ㄦ埛娉ㄥ唽鍔熻兘`銆乣fix: 淇閭鏍煎紡鏍￠獙bug`
+* `main`：主分支，生产环境代码，禁止直接提交
 
-* **Type 绫诲瀷**锛?
+* `develop`：开发分支，集成测试通过后合并到 `main`
 
-  * `feat`锛氭柊鍔熻兘
-
-  * `fix`锛歜ug 淇
-
-  * `docs`锛氭枃妗ｆ洿鏂帮紙濡?README銆佺紪鐮佽鑼冿級
-
-  * `style`锛氫唬鐮佹牸寮忚皟鏁达紙涓嶅奖鍝嶅姛鑳斤紝濡傜缉杩涖€佺┖鏍硷級
-
-  * `refactor`锛氫唬鐮侀噸鏋勶紙涓嶅奖鍝嶅姛鑳斤紝濡傛柟娉曟媶鍒嗐€佸彉閲忛噸鍛藉悕锛?
-  * `test`锛氭坊鍔犳垨淇敼娴嬭瘯鐢ㄤ緥
-
-  * `chore`锛氭瀯寤鸿剼鏈€佷緷璧栨洿鏂扮瓑鏉傞」
-
-* **Subject 鎻忚堪**锛?
-
-  * 棣栧瓧姣嶅皬鍐欙紝缁撳熬涓嶅姞鏍囩偣
-
-  * 绠€娲佹槑浜嗭紙涓嶈秴杩?50 瀛楃锛夛紝璇存槑銆屽仛浜嗕粈涔堛€嶈€岄潪銆屾€庝箞鍋氥€?
-### 6.3 鎻愪氦绾︽潫
+* `feature/{功能名}`：功能分支，�?`develop` 分支创建，完成后合并�?`develop`（如 `feature/user-register`�?
+* `bugfix/{问题描述}`：bug 修复分支，从 `develop` 分支创建，修复后合并�?`develop`（如 `bugfix/email-validation`�?
+* `hotfix/{问题描述}`：紧急修复分支，�?`main` 分支创建，修复后同时合并�?`main` �?`develop`（如 `hotfix/login-failure`�?
+### 6.2 Commit 规范
 
 
 
-* 绂佹鎻愪氦 `.env` 鏂囦欢銆両DE 閰嶇疆鏂囦欢锛堝 `.idea`銆乣.vscode`锛夈€佹瀯寤轰骇鐗╋紙濡?`target`銆乣dist`锛?
-* 绂佹鍦?commit message 涓寘鍚瘑鐮併€乀oken銆佸瘑閽ョ瓑鏁忔劅淇℃伅
+* 格式：`{type}: {subject}`（类型：简短描述），示例：`feat: 实现用户注册功能`、`fix: 修复邮箱格式校验bug`
 
-* 姣忔鎻愪氦鍙寘鍚竴涓姛鑳芥垨涓€涓?bug 淇锛岄伩鍏嶅ぇ鏉傜儵鎻愪氦
+* **Type 类型**�?
 
-* 鎻愪氦鍓嶅繀椤昏繍琛屾湰鍦版祴璇曞拰 Lint锛岀‘淇濅唬鐮佺鍚堣鑼?
-### 6.4 PR/MR 瑙勮寖
+  * `feat`：新功能
+
+  * `fix`：bug 修复
+
+  * `docs`：文档更新（�?README、编码规范）
+
+  * `style`：代码格式调整（不影响功能，如缩进、空格）
+
+  * `refactor`：代码重构（不影响功能，如方法拆分、变量重命名�?
+  * `test`：添加或修改测试用例
+
+  * `chore`：构建脚本、依赖更新等杂项
+
+* **Subject 描述**�?
+
+  * 首字母小写，结尾不加标点
+
+  * 简洁明了（不超�?50 字符），说明「做了什么」而非「怎么做�?
+### 6.3 提交约束
 
 
 
-* 鍔熻兘鍒嗘敮瀹屾垚鍚庯紝閫氳繃 Pull Request/Merge Request 鍚堝苟鍒扮洰鏍囧垎鏀?
-* PR/MR 鏍囬鏍煎紡涓?Commit 涓€鑷达紙`{type}: {subject}`锛?
-* PR/MR 鎻忚堪闇€璇存槑鍔熻兘鐐广€佹祴璇曞満鏅€佸奖鍝嶈寖鍥?
-* 鑷冲皯闇€瑕?1 鍚嶅洟闃熸垚鍛?Code Review 閫氳繃鍚庢墠鑳藉悎骞?
-* 鍚堝苟鍓嶅繀椤婚€氳繃 CI 娴佹按绾匡紙娴嬭瘯銆丩int銆佹瀯寤猴級
+* 禁止提交 `.env` 文件、IDE 配置文件（如 `.idea`、`.vscode`）、构建产物（�?`target`、`dist`�?
+* 禁止�?commit message 中包含密码、Token、密钥等敏感信息
+
+* 每次提交只包含一个功能或一�?bug 修复，避免大杂烩提交
+
+* 提交前必须运行本地测试和 Lint，确保代码符合规�?
+### 6.4 PR/MR 规范
+
+
+
+* 功能分支完成后，通过 Pull Request/Merge Request 合并到目标分�?
+* PR/MR 标题格式�?Commit 一致（`{type}: {subject}`�?
+* PR/MR 描述需说明功能点、测试场景、影响范�?
+* 至少需�?1 名团队成�?Code Review 通过后才能合�?
+* 合并前必须通过 CI 流水线（测试、Lint、构建）
 
 
 
 ***
 
-## 涓冦€佹祴璇曡鑼?
-### 7.1 娴嬭瘯瑕嗙洊鐜囪姹?
+## 七、测试规�?
+### 7.1 测试覆盖率要�?
 
 
-| 浠ｇ爜灞傜骇                          | 鏈€浣庤鐩栫巼 | 娴嬭瘯绫诲瀷                            |
+| 代码层级                          | 最低覆盖率 | 测试类型                            |
 | ----------------------------- | ----- | ------------------------------- |
-| Controller                    | 80%   | 鍗曞厓娴嬭瘯锛圡ock 鏈嶅姟灞傦級                  |
-| Application Service / UseCase | 90%   | 鍗曞厓娴嬭瘯锛圡ock Repository锛?          |
-| Repository                    | 95%   | 闆嗘垚娴嬭瘯锛圱estcontainers + 鐪熷疄 MySQL锛?|
-| 宸ュ叿绫?                          | 95%   | 鍗曞厓娴嬭瘯锛堣鐩栨墍鏈夊垎鏀級                    |
+| Controller                    | 80%   | 单元测试（Mock 服务层）                  |
+| Application Service / UseCase | 90%   | 单元测试（Mock Repository�?          |
+| Repository                    | 95%   | 集成测试（Testcontainers + 真实 MySQL�?|
+| 工具�?                          | 95%   | 单元测试（覆盖所有分支）                    |
 
-### 7.2 娴嬭瘯鍦烘櫙瑕嗙洊
+### 7.2 测试场景覆盖
 
-姣忎釜鎺ュ彛 / 鏂规硶蹇呴』瑕嗙洊浠ヤ笅鍦烘櫙锛?
-
-
-* 姝ｅ父涓氬姟娴佺▼锛堝弬鏁板悎娉曘€侀€昏緫姝ｇ‘锛?
-* 鍙傛暟鏍￠獙澶辫触锛堝繀濉」涓虹┖銆佹牸寮忛敊璇€侀暱搴﹁秴鍑洪檺鍒讹級
-
-* 鏉冮檺涓嶈冻 / 鏈璇侊紙濡傛湭鐧诲綍璁块棶闇€鎺堟潈鎺ュ彛锛?
-* 璧勬簮涓嶅瓨鍦紙濡傛煡璇笉瀛樺湪鐨勭敤鎴?ID锛?
-* 涓氬姟寮傚父锛堝浣欓涓嶈冻銆佸簱瀛樹笉澶燂級
-
-* 骞跺彂鍦烘櫙锛堝绉掓潃銆佸苟鍙戞洿鏂板悓涓€璧勬簮锛?
-### 7.3 娴嬭瘯瑙勮寖
+每个接口 / 方法必须覆盖以下场景�?
 
 
+* 正常业务流程（参数合法、逻辑正确�?
+* 参数校验失败（必填项为空、格式错误、长度超出限制）
 
-* 浣跨敤 JUnit 5 + Mockito 杩涜鍗曞厓娴嬭瘯锛孴estcontainers 杩涜闆嗘垚娴嬭瘯
+* 权限不足 / 未认证（如未登录访问需授权接口�?
+* 资源不存在（如查询不存在的用�?ID�?
+* 业务异常（如余额不足、库存不够）
 
-* 娴嬭瘯绫诲懡鍚嶏細`{琚祴璇曠被鍚峿Test`锛堝 `UserServiceTest`锛?
-* 娴嬭瘯鏂规硶鍛藉悕锛歚{娴嬭瘯鍦烘櫙} + Should + {棰勬湡缁撴灉}`锛堝 `registerWithValidParamShouldReturnUserId`锛?
-* 绂佹浣跨敤 `@Disabled` 璺宠繃娴嬭瘯锛堥櫎闈炴湁鐗规畩鍘熷洜骞舵爣娉ㄨ鏄庯級
+* 并发场景（如秒杀、并发更新同一资源�?
+### 7.3 测试规范
 
-* 绂佹鍦ㄦ祴璇曚腑浣跨敤 `System.out` 鏇夸唬鏂█锛堜娇鐢?AssertJ 鏂█搴擄紝璇箟鏇存竻鏅帮級
 
-* 娴嬭瘯鏁版嵁浣跨敤闅忔満鐢熸垚锛堝 `RandomStringUtils`锛夛紝绂佹纭紪鐮佸浐瀹氭暟鎹?
+
+* 使用 JUnit 5 + Mockito 进行单元测试，Testcontainers 进行集成测试
+
+* 测试类命名：`{被测试类名}Test`（如 `UserServiceTest`�?
+* 测试方法命名：`{测试场景} + Should + {预期结果}`（如 `registerWithValidParamShouldReturnUserId`�?
+* 禁止使用 `@Disabled` 跳过测试（除非有特殊原因并标注说明）
+
+* 禁止在测试中使用 `System.out` 替代断言（使�?AssertJ 断言库，语义更清晰）
+
+* 测试数据使用随机生成（如 `RandomStringUtils`），禁止硬编码固定数�?
 
 
 ```
-// 鉁?姝ｇ‘绀轰緥锛堝崟鍏冩祴璇曪級
+// �?正确示例（单元测试）
 
 @ExtendWith(MockitoExtension.class)
 
@@ -1080,7 +1080,7 @@ public class RegisterUserUseCaseTest {
 
 &#x20;   void registerWithValidParamShouldReturnUserId() {
 
-&#x20;       // 1. 鍑嗗娴嬭瘯鏁版嵁
+&#x20;       // 1. 准备测试数据
 
 &#x20;       RegisterUserCommand command = new RegisterUserCommand(
 
@@ -1106,7 +1106,7 @@ public class RegisterUserUseCaseTest {
 
 &#x20;           .build();
 
-&#x20;       // 2. Mock 渚濊禆琛屼负
+&#x20;       // 2. Mock 依赖行为
 
 &#x20;       when(userRepository.existsByEmail(command.email())).thenReturn(false);
 
@@ -1114,11 +1114,11 @@ public class RegisterUserUseCaseTest {
 
 &#x20;       when(userRepository.save(any(User.class))).thenReturn(mockUser);
 
-&#x20;       // 3. 鎵ц娴嬭瘯
+&#x20;       // 3. 执行测试
 
 &#x20;       Long actualUserId = registerUserUseCase.execute(command);
 
-&#x20;       // 4. 鏂█缁撴灉
+&#x20;       // 4. 断言结果
 
 &#x20;       assertThat(actualUserId).isEqualTo(expectedUserId);
 
@@ -1134,7 +1134,7 @@ public class RegisterUserUseCaseTest {
 
 &#x20;   void registerWithDuplicateEmailShouldThrowException() {
 
-&#x20;       // 1. 鍑嗗娴嬭瘯鏁版嵁
+&#x20;       // 1. 准备测试数据
 
 &#x20;       RegisterUserCommand command = new RegisterUserCommand(
 
@@ -1146,10 +1146,10 @@ public class RegisterUserUseCaseTest {
 
 &#x20;       );
 
-&#x20;       // 2. Mock 渚濊禆琛屼负锛堥偖绠卞凡瀛樺湪锛?
+&#x20;       // 2. Mock 依赖行为（邮箱已存在�?
 &#x20;       when(userRepository.existsByEmail(command.email())).thenReturn(true);
 
-&#x20;       // 3. 鎵ц娴嬭瘯骞舵柇瑷€寮傚父
+&#x20;       // 3. 执行测试并断言异常
 
 &#x20;       BusinessException exception = assertThrows(BusinessException.class, () -> {
 
@@ -1172,127 +1172,127 @@ public class RegisterUserUseCaseTest {
 
 ***
 
-## 鍏€佸叚杈瑰舰鏋舵瀯瀹炴柦缁嗗垯
+## 八、六边形架构实施细则
 
-### 8.1 鍒嗗眰渚濊禆瑙勫垯
+### 8.1 分层依赖规则
 
 
 
-* 渚濊禆鏂瑰悜锛歚interfaces` 鈫?`application` 鈫?`domain` 鈫?`infrastructure`锛堜弗鏍煎崟鍚戜緷璧栵級
+* 依赖方向：`interfaces` �?`application` �?`domain` �?`infrastructure`（严格单向依赖）
 
-* `domain` 灞傦細鏍稿績灞傦紝闆朵緷璧栵紙涓嶄緷璧栦换浣曟鏋躲€佸叾浠栧眰浠ｇ爜锛夛紝浠呭寘鍚函 Java 浠ｇ爜锛圥OJO銆佹帴鍙ｃ€佹灇涓撅級
+* `domain` 层：核心层，零依赖（不依赖任何框架、其他层代码），仅包含纯 Java 代码（POJO、接口、枚举）
 
-* `application` 灞傦細渚濊禆 `domain` 灞傦紝涓嶄緷璧?`infrastructure` 鍜?`interfaces` 灞傦紝瀹氫箟涓氬姟鐢ㄤ緥鍜?DTO
+* `application` 层：依赖 `domain` 层，不依�?`infrastructure` �?`interfaces` 层，定义业务用例�?DTO
 
-* `infrastructure` 灞傦細渚濊禆 `domain` 灞傦紝瀹炵幇 `domain` 灞傚畾涔夌殑鎺ュ彛锛堝 Repository銆丒ventPublisher锛夛紝鍖呭惈妗嗘灦渚濊禆鍜屽閮ㄨ祫婧愯闂?
-* `interfaces` 灞傦細渚濊禆 `application` 灞傦紝璐熻矗鎺ユ敹澶栭儴璇锋眰锛圚TTP銆丮Q锛夊苟杞彂缁欏簲鐢ㄦ湇鍔★紝涓嶅寘鍚笟鍔￠€昏緫
+* `infrastructure` 层：依赖 `domain` 层，实现 `domain` 层定义的接口（如 Repository、EventPublisher），包含框架依赖和外部资源访�?
+* `interfaces` 层：依赖 `application` 层，负责接收外部请求（HTTP、MQ）并转发给应用服务，不包含业务逻辑
 
-### 8.2 鍖呯粨鏋勫畬鏁寸ず渚嬶紙user-service锛?
+### 8.2 包结构完整示例（user-service�?
 
 
 ```
 com.by.microservices.user/
 
-鈹溾攢鈹€ UserServiceApplication.java  # 搴旂敤鍏ュ彛锛堜粎閰嶇疆鎵弿锛屾棤涓氬姟閫昏緫锛?
-鈹?
-鈹溾攢鈹€ domain/                      # 棰嗗煙灞傦紙闆朵緷璧栵級
+├── UserServiceApplication.java  # 应用入口（仅配置扫描，无业务逻辑�?
+�?
+├── domain/                      # 领域层（零依赖）
 
-鈹?  鈹溾攢鈹€ entity/
+�?  ├── entity/
 
-鈹?  鈹?  鈹斺攢鈹€ User.java            # 棰嗗煙瀹炰綋锛堢函 POJO锛孈Getter @Builder锛?
-鈹?  鈹溾攢鈹€ vo/
+�?  �?  └── User.java            # 领域实体（纯 POJO，@Getter @Builder�?
+�?  ├── vo/
 
-鈹?  鈹?  鈹斺攢鈹€ Email.java           # 鍊煎璞★紙灏佽閭鏍￠獙閫昏緫锛?
-鈹?  鈹溾攢鈹€ event/
+�?  �?  └── Email.java           # 值对象（封装邮箱校验逻辑�?
+�?  ├── event/
 
-鈹?  鈹?  鈹溾攢鈹€ UserRegisteredEvent.java  # 棰嗗煙浜嬩欢
+�?  �?  ├── UserRegisteredEvent.java  # 领域事件
 
-鈹?  鈹?  鈹斺攢鈹€ EventPublisher.java       # 浜嬩欢鍙戝竷鎺ュ彛锛堝畾涔夊湪 domain锛?
-鈹?  鈹溾攢鈹€ repository/
+�?  �?  └── EventPublisher.java       # 事件发布接口（定义在 domain�?
+�?  ├── repository/
 
-鈹?  鈹?  鈹斺攢鈹€ UserRepository.java       # 浠撳偍鎺ュ彛锛堝畾涔夊湪 domain锛?
-鈹?  鈹斺攢鈹€ constant/
+�?  �?  └── UserRepository.java       # 仓储接口（定义在 domain�?
+�?  └── constant/
 
-鈹?      鈹斺攢鈹€ UserStatus.java           # 棰嗗煙甯搁噺锛堟灇涓撅級
+�?      └── UserStatus.java           # 领域常量（枚举）
 
-鈹?
-鈹溾攢鈹€ application/                 # 搴旂敤灞傦紙渚濊禆 domain锛?
-鈹?  鈹溾攢鈹€ service/
+�?
+├── application/                 # 应用层（依赖 domain�?
+�?  ├── service/
 
-鈹?  鈹?  鈹斺攢鈹€ UserApplicationService.java  # 搴旂敤鏈嶅姟鎺ュ彛
+�?  �?  └── UserApplicationService.java  # 应用服务接口
 
-鈹?  鈹溾攢鈹€ usecase/
+�?  ├── usecase/
 
-鈹?  鈹?  鈹溾攢鈹€ RegisterUserUseCase.java     # 娉ㄥ唽鐢ㄤ緥瀹炵幇
+�?  �?  ├── RegisterUserUseCase.java     # 注册用例实现
 
-鈹?  鈹?  鈹斺攢鈹€ QueryUserUseCase.java        # 鏌ヨ鐢ㄤ緥瀹炵幇
+�?  �?  └── QueryUserUseCase.java        # 查询用例实现
 
-鈹?  鈹斺攢鈹€ dto/
+�?  └── dto/
 
-鈹?      鈹溾攢鈹€ RegisterUserCommand.java     # 鍛戒护 DTO
+�?      ├── RegisterUserCommand.java     # 命令 DTO
 
-鈹?      鈹溾攢鈹€ QueryUserQuery.java          # 鏌ヨ DTO
+�?      ├── QueryUserQuery.java          # 查询 DTO
 
-鈹?      鈹斺攢鈹€ UserResponse.java            # 鍝嶅簲 DTO
+�?      └── UserResponse.java            # 响应 DTO
 
-鈹?
-鈹溾攢鈹€ infrastructure/              # 鍩虹璁炬柦灞傦紙渚濊禆 domain锛屽疄鐜板叾鎺ュ彛锛?
-鈹?  鈹溾攢鈹€ persistence/
+�?
+├── infrastructure/              # 基础设施层（依赖 domain，实现其接口�?
+�?  ├── persistence/
 
-鈹?  鈹?  鈹溾攢鈹€ UserMapper.java              # MyBatis Mapper 鎺ュ彛
+�?  �?  ├── UserMapper.java              # MyBatis Mapper 接口
 
-鈹?  鈹?  鈹斺攢鈹€ UserRepositoryImpl.java      # 浠撳偍鎺ュ彛瀹炵幇锛堝疄鐜?domain.UserRepository锛?
-鈹?  鈹溾攢鈹€ messaging/
+�?  �?  └── UserRepositoryImpl.java      # 仓储接口实现（实�?domain.UserRepository�?
+�?  ├── messaging/
 
-鈹?  鈹?  鈹斺攢鈹€ RabbitMQEventPublisher.java  # 浜嬩欢鍙戝竷瀹炵幇锛堝疄鐜?domain.EventPublisher锛?
-鈹?  鈹溾攢鈹€ external/
+�?  �?  └── RabbitMQEventPublisher.java  # 事件发布实现（实�?domain.EventPublisher�?
+�?  ├── external/
 
-鈹?  鈹?  鈹斺攢鈹€ SmsAdapter.java              # 澶栭儴鏈嶅姟閫傞厤鍣紙濡傜煭淇″彂閫侊級
+�?  �?  └── SmsAdapter.java              # 外部服务适配器（如短信发送）
 
-鈹?  鈹斺攢鈹€ config/
+�?  └── config/
 
-鈹?      鈹溾攢鈹€ MyBatisConfig.java           # MyBatis 閰嶇疆
+�?      ├── MyBatisConfig.java           # MyBatis 配置
 
-鈹?      鈹斺攢鈹€ RabbitMQConfig.java          # RabbitMQ 閰嶇疆
+�?      └── RabbitMQConfig.java          # RabbitMQ 配置
 
-鈹?
-鈹斺攢鈹€ interfaces/                  # 鎺ュ彛閫傞厤灞傦紙渚濊禆 application锛?
-&#x20;   鈹溾攢鈹€ rest/
+�?
+└── interfaces/                  # 接口适配层（依赖 application�?
+&#x20;   ├── rest/
 
-&#x20;   鈹?  鈹斺攢鈹€ UserController.java          # REST 鎺ュ彛锛堣皟鐢?application 鏈嶅姟锛?
-&#x20;   鈹斺攢鈹€ consumer/
+&#x20;   �?  └── UserController.java          # REST 接口（调�?application 服务�?
+&#x20;   └── consumer/
 
-&#x20;       鈹斺攢鈹€ OrderCreatedConsumer.java    # MQ 娑堣垂鑰咃紙璋冪敤 application 鏈嶅姟锛?```
+&#x20;       └── OrderCreatedConsumer.java    # MQ 消费者（调用 application 服务�?```
 
-### 8.3 鍏抽敭瀹炴柦绾︽潫
+### 8.3 关键实施约束
 
 
 
-* `domain` 灞傜姝㈠嚭鐜颁换浣曟鏋舵敞瑙ｏ紙濡?`@Entity`銆乣@Mapper`銆乣@Component`銆乣@Autowired` 绛夛級
+* `domain` 层禁止出现任何框架注解（�?`@Entity`、`@Mapper`、`@Component`、`@Autowired` 等）
 
-* `application` 灞傜姝㈢洿鎺ヨ闂暟鎹簱銆丮Q銆佸閮ㄦ湇鍔★紙閫氳繃 `domain` 鎺ュ彛闂存帴璁块棶锛?
-* `infrastructure` 灞傜殑瀹炵幇绫诲繀椤婚€氳繃 Spring 娉ㄥ叆鍒?`application` 灞傦紝绂佹 `new` 鍏抽敭瀛楀垱寤?
-* 璺ㄦ湇鍔￠€氫俊蹇呴』閫氳繃 API 缃戝叧鎴栨秷鎭槦鍒楋紝绂佹鏈嶅姟闂寸洿鎺ヨ皟鐢?
-* 涓氬姟閫昏緫鍙樻洿浠呬慨鏀?`domain` 鎴?`application` 灞傦紝`infrastructure` 鍜?`interfaces` 灞傚敖閲忎笉鍙?
+* `application` 层禁止直接访问数据库、MQ、外部服务（通过 `domain` 接口间接访问�?
+* `infrastructure` 层的实现类必须通过 Spring 注入�?`application` 层，禁止 `new` 关键字创�?
+* 跨服务通信必须通过 API 网关或消息队列，禁止服务间直接调�?
+* 业务逻辑变更仅修�?`domain` �?`application` 层，`infrastructure` �?`interfaces` 层尽量不�?
 
 
 ***
 
-## 涔濄€佸畨鍏ㄩ厤缃疄鏂界粏鍒?
-### 9.1 JWT 閰嶇疆瑙勮寖
+## 九、安全配置实施细�?
+### 9.1 JWT 配置规范
 
 
 
-| 閰嶇疆椤?                | 瑕佹眰                                          | 璇存槑                                     |
+| 配置�?                | 要求                                          | 说明                                     |
 | ------------------- | ------------------------------------------- | -------------------------------------- |
-| 绛惧悕绠楁硶                | HS256锛圚MAC-SHA256锛?                         | 瀵圭О鍔犲瘑绠楁硶锛岄儴缃茬畝鍗曪紝閫傚悎鍐呴儴寰湇鍔¤璇?                 |
-| Token 浼犻€掓柟寮?         | \`Authorization: Bearer  OAuth 2.0 鏍囧噯锛岃姹傚ご鎼哄甫 |                                        |
-| `access_token` 鏈夋晥鏈? | 30 鍒嗛挓锛?800 绉掞級                               | 鐭湡鏈夋晥锛岄檷浣庢硠闇查闄?                           |
-| `refresh_token` 鏈夋晥鏈?| 7 澶?                                        | 闀挎湡鏈夋晥锛岀敤浜庡埛鏂?`access_token`               |
-| 瀵嗛挜鏉ユ簮                | 鐜鍙橀噺 `JWT_SECRET`                           | 瀵嗛挜闀垮害 鈮?256 bits锛堝嵆 32 涓?ASCII 瀛楃锛夛紝绂佹纭紪鐮?|
-| 瀵嗛挜杞崲                | 姣?90 澶╄疆鎹竴娆?                                 | 杞崲鏃堕渶鍏煎鏃у瘑閽ラ獙璇侊紙鍙屽瘑閽ュ叡瀛樿繃娓℃湡锛?                 |
+| 签名算法                | HS256（HMAC-SHA256�?                         | 对称加密算法，部署简单，适合内部微服务认�?                 |
+| Token 传递方�?         | \`Authorization: Bearer  OAuth 2.0 标准，请求头携带 |                                        |
+| `access_token` 有效�? | 30 分钟�?800 秒）                               | 短期有效，降低泄露风�?                           |
+| `refresh_token` 有效�?| 7 �?                                        | 长期有效，用于刷�?`access_token`               |
+| 密钥来源                | 环境变量 `JWT_SECRET`                           | 密钥长度 �?256 bits（即 32 �?ASCII 字符），禁止硬编�?|
+| 密钥轮换                | �?90 天轮换一�?                                 | 轮换时需兼容旧密钥验证（双密钥共存过渡期�?                 |
 
-#### JWT 閰嶇疆浠ｇ爜绀轰緥锛圫pring Security锛?
+#### JWT 配置代码示例（Spring Security�?
 
 
 ```
@@ -1304,25 +1304,25 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20;   private final String jwtSecret;
 
-&#x20;   private final long accessTokenExpireSeconds = 1800; // 30鍒嗛挓
+&#x20;   private final long accessTokenExpireSeconds = 1800; // 30分钟
 
-&#x20;   private final long refreshTokenExpireSeconds = 60 \* 60 \* 24 \* 7; // 7澶?
-&#x20;   // 浠庣幆澧冨彉閲忔敞鍏ュ瘑閽ワ紝绂佹纭紪鐮?
+&#x20;   private final long refreshTokenExpireSeconds = 60 \* 60 \* 24 \* 7; // 7�?
+&#x20;   // 从环境变量注入密钥，禁止硬编�?
 &#x20;   public JwtSecurityConfig(@Value("\${jwt.secret}") String jwtSecret) {
 
 &#x20;       this.jwtSecret = jwtSecret;
 
-&#x20;       // 鏍￠獙瀵嗛挜闀垮害
+&#x20;       // 校验密钥长度
 
 &#x20;       if (jwtSecret.length()  {
 
-&#x20;           throw new IllegalArgumentException("JWT\_SECRET 闀垮害蹇呴』鈮?2瀛楃锛?56bits锛?);
+&#x20;           throw new IllegalArgumentException("JWT\_SECRET 长度必须�?2字符�?56bits�?);
 
 &#x20;       }
 
 &#x20;   }
 
-&#x20;   // JWT 浠ょ墝鐢熸垚鍣?
+&#x20;   // JWT 令牌生成�?
 &#x20;   @Bean
 
 &#x20;   public JwtTokenProvider jwtTokenProvider() {
@@ -1339,7 +1339,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20;   }
 
-&#x20;   // 瀵嗙爜鍔犲瘑鍣紙涓?9.3 瀵嗙爜绛栫暐涓€鑷达級
+&#x20;   // 密码加密器（�?9.3 密码策略一致）
 
 &#x20;   @Bean
 
@@ -1349,7 +1349,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20;   }
 
-&#x20;   // 瀹夊叏瑙勫垯閰嶇疆
+&#x20;   // 安全规则配置
 
 &#x20;   @Override
 
@@ -1357,12 +1357,12 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20;       http
 
-&#x20;           .csrf(csrf -> csrf.disable()) // 寰湇鍔￠棿璋冪敤绂佺敤 CSRF
+&#x20;           .csrf(csrf -> csrf.disable()) // 微服务间调用禁用 CSRF
 
-&#x20;           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 鏃犵姸鎬?
+&#x20;           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 无状�?
 &#x20;           .authorizeRequests(auth -> auth
 
-&#x20;               // 鏀捐鎺ュ彛锛堜笌 9.4 涓€鑷达級
+&#x20;               // 放行接口（与 9.4 一致）
 
 &#x20;               .antMatchers("/actuator/health", "/actuator/prometheus").permitAll()
 
@@ -1370,18 +1370,18 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20;               .antMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
 
-&#x20;               // 鍏朵粬鎺ュ彛闇€璁よ瘉
+&#x20;               // 其他接口需认证
 
 &#x20;               .anyRequest().authenticated()
 
 &#x20;           )
 
-&#x20;           // JWT 杩囨护鍣紙楠岃瘉 access\_token锛?
+&#x20;           // JWT 过滤器（验证 access\_token�?
 &#x20;           .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 &#x20;   }
 
-&#x20;   // JWT 璁よ瘉杩囨护鍣紙鑷畾涔夊疄鐜帮級
+&#x20;   // JWT 认证过滤器（自定义实现）
 
 &#x20;   @Bean
 
@@ -1394,32 +1394,32 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
-### 9.2 璁よ瘉鎺ュ彛瑙勮寖
+### 9.2 认证接口规范
 
-#### 9.2.1 鐢ㄦ埛鐧诲綍
+#### 9.2.1 用户登录
 
 
 
-* **璇锋眰鏂瑰紡**锛歅OST
+* **请求方式**：POST
 
-* **璇锋眰璺緞**锛歚/auth/login`
+* **请求路径**：`/auth/login`
 
-* **Content-Type**锛歛pplication/json
+* **Content-Type**：application/json
 
-* **璇锋眰浣?*锛?
+* **请求�?*�?
 
 
 ```
 {
 
-&#x20; "username": "string", // 鐢ㄦ埛鍚嶏紙鍞竴鏍囪瘑锛?
-&#x20; "password": "string"  // 鏄庢枃瀵嗙爜锛堜紶杈撹繃绋嬮渶 HTTPS 鍔犲瘑锛?
+&#x20; "username": "string", // 用户名（唯一标识�?
+&#x20; "password": "string"  // 明文密码（传输过程需 HTTPS 加密�?
 }
 ```
 
 
 
-* **鎴愬姛鍝嶅簲**锛?00 OK锛夛細
+* **成功响应**�?00 OK）：
 
 
 
@@ -1432,11 +1432,11 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20; "data": {
 
-&#x20;   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // JWT 璁块棶浠ょ墝
+&#x20;   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // JWT 访问令牌
 
-&#x20;   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // 鍒锋柊浠ょ墝
+&#x20;   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // 刷新令牌
 
-&#x20;   "expiresIn": 1800 // accessToken 鏈夋晥鏈燂紙绉掞級
+&#x20;   "expiresIn": 1800 // accessToken 有效期（秒）
 
 &#x20; }
 
@@ -1445,7 +1445,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-* **澶辫触鍝嶅簲**锛?01 Unauthorized锛夛細
+* **失败响应**�?01 Unauthorized）：
 
 
 
@@ -1454,39 +1454,39 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20; "code": 401,
 
-&#x20; "message": "鐢ㄦ埛鍚嶆垨瀵嗙爜閿欒",
+&#x20; "message": "用户名或密码错误",
 
 &#x20; "data": null
 
 }
 ```
 
-#### 9.2.2 鐢ㄦ埛娉ㄥ唽
+#### 9.2.2 用户注册
 
 
 
-* **璇锋眰鏂瑰紡**锛歅OST
+* **请求方式**：POST
 
-* **璇锋眰璺緞**锛歚/auth/register`
+* **请求路径**：`/auth/register`
 
-* **Content-Type**锛歛pplication/json
+* **Content-Type**：application/json
 
-* **璇锋眰浣?*锛堥渶婊¤冻 9.3 瀵嗙爜绛栫暐锛夛細
+* **请求�?*（需满足 9.3 密码策略）：
 
 
 
 ```
 {
 
-&#x20; "username": "string", // 鐢ㄦ埛鍚嶏紙2-20浣嶏紝鍞竴锛?
-&#x20; "password": "string", // 瀵嗙爜锛?-32浣嶏紝鍚瓧姣?鏁板瓧锛?
-&#x20; "email": "string"     // 閭锛堟牸寮忓悎娉曪紝鍞竴锛?
+&#x20; "username": "string", // 用户名（2-20位，唯一�?
+&#x20; "password": "string", // 密码�?-32位，含字�?数字�?
+&#x20; "email": "string"     // 邮箱（格式合法，唯一�?
 }
 ```
 
 
 
-* **鎴愬姛鍝嶅簲**锛?00 OK锛夛細
+* **成功响应**�?00 OK）：
 
 
 
@@ -1495,11 +1495,11 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20; "code": 200,
 
-&#x20; "message": "娉ㄥ唽鎴愬姛",
+&#x20; "message": "注册成功",
 
 &#x20; "data": {
 
-&#x20;   "userId": 1 // 娉ㄥ唽鐢熸垚鐨勭敤鎴稩D
+&#x20;   "userId": 1 // 注册生成的用户ID
 
 &#x20; }
 
@@ -1508,7 +1508,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-* **澶辫触鍝嶅簲**锛?00 Bad Request锛夛細
+* **失败响应**�?00 Bad Request）：
 
 
 
@@ -1517,24 +1517,24 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 &#x20; "code": 400,
 
-&#x20; "message": "閭鏍煎紡涓嶆纭紱瀵嗙爜闀垮害蹇呴』鍦?-32浣嶄箣闂?,
+&#x20; "message": "邮箱格式不正确；密码长度必须�?-32位之�?,
 
 &#x20; "data": null
 
 }
 ```
 
-#### 9.2.3 鍒锋柊 Token
+#### 9.2.3 刷新 Token
 
 
 
-* **璇锋眰鏂瑰紡**锛歅OST
+* **请求方式**：POST
 
-* **璇锋眰璺緞**锛歚/auth/refresh-token`
+* **请求路径**：`/auth/refresh-token`
 
-* **Content-Type**锛歛pplication/json
+* **Content-Type**：application/json
 
-* **璇锋眰浣?*锛?
+* **请求�?*�?
 
 
 ```
@@ -1547,7 +1547,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-* **鎴愬姛鍝嶅簲**锛?00 OK锛夛細
+* **成功响应**�?00 OK）：
 
 
 
@@ -1569,50 +1569,50 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
-### 9.3 瀵嗙爜瀹夊叏绛栫暐
+### 9.3 密码安全策略
 
 
 
-| 閰嶇疆椤?  | 瑕佹眰                | 瀹炴柦鏂瑰紡                        |
+| 配置�?  | 要求                | 实施方式                        |
 | ----- | ----------------- | --------------------------- |
-| 鍔犲瘑绠楁硶  | BCrypt            | 涓嶅彲閫嗗姞鐩愬搱甯岋紝鑷甫闅忔満鐩?              |
-| 鍔犲瘑寮哄害  | log rounds = 10   | 骞宠　瀹夊叏鎬т笌鎬ц兘锛堝€艰秺澶ц秺瀹夊叏浣嗚€楁椂鏇撮暱锛?      |
-| 鏈€灏忛暱搴? | 鈮?8 浣?            | DTO 灞傞€氳繃 `@Size(min = 8)` 鏍￠獙 |
-| 澶嶆潅搴﹁姹?| 蹇呴』鍖呭惈瀛楁瘝 + 鏁板瓧       | DTO 灞傞€氳繃 `@Pattern` 姝ｅ垯鏍￠獙     |
-| 瀛樺偍鏍煎紡  | 瀛樺偍 BCrypt 鍔犲瘑鍚庣殑鍝堝笇鍊?| 绂佹瀛樺偍鏄庢枃鎴?MD5 绛夊急鍝堝笇            |
-| 瀵嗙爜閲嶇疆  | 鐢熸垚涓存椂閾炬帴锛堟湁鏁堟湡 24 灏忔椂锛?| 绂佹鐩存帴杩斿洖鍘熷瀵嗙爜                  |
+| 加密算法  | BCrypt            | 不可逆加盐哈希，自带随机�?              |
+| 加密强度  | log rounds = 10   | 平衡安全性与性能（值越大越安全但耗时更长�?      |
+| 最小长�? | �?8 �?            | DTO 层通过 `@Size(min = 8)` 校验 |
+| 复杂度要�?| 必须包含字母 + 数字       | DTO 层通过 `@Pattern` 正则校验     |
+| 存储格式  | 存储 BCrypt 加密后的哈希�?| 禁止存储明文�?MD5 等弱哈希            |
+| 密码重置  | 生成临时链接（有效期 24 小时�?| 禁止直接返回原始密码                  |
 
-#### 瀵嗙爜鏍￠獙浠ｇ爜绀轰緥锛圖TO 灞傦級
+#### 密码校验代码示例（DTO 层）
 
 
 
 ```
 public record RegisterUserCommand(
 
-&#x20;   @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌?)
+&#x20;   @NotBlank(message = "用户名不能为�?)
 
-&#x20;   @Size(min = 2, max = 20, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪2-20浣嶄箣闂?)
+&#x20;   @Size(min = 2, max = 20, message = "用户名长度必须在2-20位之�?)
 
 &#x20;   String username,
 
-&#x20;   @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
+&#x20;   @NotBlank(message = "密码不能为空")
 
-&#x20;   @Size(min = 8, max = 32, message = "瀵嗙爜闀垮害蹇呴』鍦?-32浣嶄箣闂?)
+&#x20;   @Size(min = 8, max = 32, message = "密码长度必须�?-32位之�?)
 
-&#x20;   @Pattern(regexp = "^(?=.\*\[A-Za-z])(?=.\*\\\d).+\$", message = "瀵嗙爜蹇呴』鍖呭惈瀛楁瘝鍜屾暟瀛?)
+&#x20;   @Pattern(regexp = "^(?=.\*\[A-Za-z])(?=.\*\\\d).+\$", message = "密码必须包含字母和数�?)
 
 &#x20;   String password,
 
-&#x20;   @NotBlank(message = "閭涓嶈兘涓虹┖")
+&#x20;   @NotBlank(message = "邮箱不能为空")
 
-&#x20;   @Email(message = "閭鏍煎紡涓嶆纭?)
+&#x20;   @Email(message = "邮箱格式不正�?)
 
 &#x20;   String email
 
 ) {}
 ```
 
-#### 瀵嗙爜鍔犲瘑浠ｇ爜绀轰緥锛圫ervice 灞傦級
+#### 密码加密代码示例（Service 层）
 
 
 
@@ -1627,7 +1627,7 @@ public class AuthService {
 
 &#x20;   private final JwtTokenProvider jwtTokenProvider;
 
-&#x20;   // 鏋勯€犲嚱鏁版敞鍏ワ紙绂佹 @Autowired锛?
+&#x20;   // 构造函数注入（禁止 @Autowired�?
 &#x20;   public AuthService(PasswordEncoder passwordEncoder, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
 
 &#x20;       this.passwordEncoder = passwordEncoder;
@@ -1640,23 +1640,23 @@ public class AuthService {
 
 &#x20;   public Long register(RegisterUserCommand command) {
 
-&#x20;       // 1. 鏍￠獙閭鏄惁宸叉敞鍐?
+&#x20;       // 1. 校验邮箱是否已注�?
 &#x20;       if (userRepository.existsByEmail(command.email())) {
 
 &#x20;           throw new BusinessException(ErrorCode.EMAIL\_ALREADY\_REGISTERED);
 
 &#x20;       }
 
-&#x20;       // 2. 瀵嗙爜鍔犲瘑锛圔Crypt 鑷姩鍔犵洂锛?
+&#x20;       // 2. 密码加密（BCrypt 自动加盐�?
 &#x20;       String encryptedPassword = passwordEncoder.encode(command.password());
 
-&#x20;       // 3. 淇濆瓨鐢ㄦ埛
+&#x20;       // 3. 保存用户
 
 &#x20;       User user = User.builder()
 
 &#x20;           .username(command.username())
 
-&#x20;           .password(encryptedPassword) // 瀛樺偍鍔犲瘑鍚庣殑鍝堝笇鍊?
+&#x20;           .password(encryptedPassword) // 存储加密后的哈希�?
 &#x20;           .email(command.email())
 
 &#x20;           .status(UserStatus.ACTIVE)
@@ -1677,13 +1677,13 @@ public class AuthService {
 
 &#x20;   public JwtTokenPair login(LoginCommand command) {
 
-&#x20;       // 1. 鏌ヨ鐢ㄦ埛
+&#x20;       // 1. 查询用户
 
 &#x20;       User user = userRepository.findByUsername(command.username())
 
 &#x20;           .orElseThrow(() -> new BusinessException(ErrorCode.USER\_NOT\_FOUND));
 
-&#x20;       // 2. 鏍￠獙瀵嗙爜锛堟槑鏂囦笌鍝堝笇鍊兼瘮瀵癸級
+&#x20;       // 2. 校验密码（明文与哈希值比对）
 
 &#x20;       if (!passwordEncoder.matches(command.password(), user.getPassword())) {
 
@@ -1691,7 +1691,7 @@ public class AuthService {
 
 &#x20;       }
 
-&#x20;       // 3. 鐢熸垚 Token 瀵?
+&#x20;       // 3. 生成 Token �?
 &#x20;       return jwtTokenProvider.generateTokenPair(user);
 
 &#x20;   }
@@ -1699,42 +1699,42 @@ public class AuthService {
 }
 ```
 
-### 9.4 鎺ュ彛鏀捐瑙勫垯锛堟棤闇€璁よ瘉锛?
+### 9.4 接口放行规则（无需认证�?
 
 
-| 璇锋眰鏂规硶 | 璺緞                     | 鐢ㄩ€?          | 瀹夊叏璇存槑                      |
+| 请求方法 | 路径                     | 用�?          | 安全说明                      |
 | ---- | ---------------------- | ------------ | ------------------------- |
-| GET  | `/actuator/health`     | 鏈嶅姟鍋ュ悍妫€鏌?      | 鏃犳晱鎰熶俊鎭紝鍏紑璁块棶                |
-| GET  | `/actuator/prometheus` | 鐩戞帶鎸囨爣閲囬泦       | 浠呮毚闇查潪鏁忔劅鎸囨爣锛岀敓浜х幆澧冮渶闄愬埗 IP       |
-| GET  | `/swagger-ui/**`       | API 鏂囨。椤甸潰     | 浠呭紑鍙?/ 娴嬭瘯鐜鍚敤              |
-| GET  | `/v3/api-docs/**`      | OpenAPI 鍗忚鏂囦欢 | 浠呭紑鍙?/ 娴嬭瘯鐜鍚敤              |
-| POST | `/auth/login`          | 鐢ㄦ埛鐧诲綍         | 鍏紑璁块棶锛岄渶 HTTPS 鍔犲瘑           |
-| POST | `/auth/register`       | 鐢ㄦ埛娉ㄥ唽         | 鍏紑璁块棶锛岄渶鍙傛暟鏍￠獙                |
-| POST | `/auth/refresh-token`  | 鍒锋柊 Token     | 鍏紑璁块棶锛岄渶鏍￠獙 refreshToken 鏈夋晥鎬?|
+| GET  | `/actuator/health`     | 服务健康检�?      | 无敏感信息，公开访问                |
+| GET  | `/actuator/prometheus` | 监控指标采集       | 仅暴露非敏感指标，生产环境需限制 IP       |
+| GET  | `/swagger-ui/**`       | API 文档页面     | 仅开�?/ 测试环境启用              |
+| GET  | `/v3/api-docs/**`      | OpenAPI 协议文件 | 仅开�?/ 测试环境启用              |
+| POST | `/auth/login`          | 用户登录         | 公开访问，需 HTTPS 加密           |
+| POST | `/auth/register`       | 用户注册         | 公开访问，需参数校验                |
+| POST | `/auth/refresh-token`  | 刷新 Token     | 公开访问，需校验 refreshToken 有效�?|
 
-### 9.5 瀹夊叏绾㈢嚎锛堜弗鏍肩姝級
+### 9.5 安全红线（严格禁止）
 
 
 
-1. **绂佹鍦?JWT 涓瓨鏀炬晱鎰熶俊鎭?*锛氬寘鎷瘑鐮併€佽韩浠借瘉鍙枫€佹墜鏈哄彿銆侀摱琛屽崱鍙风瓑锛屼粎鍏佽瀛樻斁鐢ㄦ埛 ID銆佺敤鎴峰悕绛夐潪鏁忔劅鏍囪瘑
+1. **禁止�?JWT 中存放敏感信�?*：包括密码、身份证号、手机号、银行卡号等，仅允许存放用户 ID、用户名等非敏感标识
 
-2. **绂佹鎺ュ彛杩斿洖鏄庢枃瀵嗙爜**锛氭棤璁烘垚鍔?/ 澶辫触鍝嶅簲锛屽潎涓嶅緱鍖呭惈鏄庢枃瀵嗙爜锛堝鐧诲綍澶辫触鎻愮ず 鈥滃瘑鐮侀敊璇€?鑰岄潪 鈥滃瘑鐮?123456 閿欒鈥濓級
+2. **禁止接口返回明文密码**：无论成�?/ 失败响应，均不得包含明文密码（如登录失败提示 “密码错误�?而非 “密�?123456 错误”）
 
-3. **绂佹鏃ュ織杈撳嚭鏁忔劅淇℃伅**锛歍oken銆佸瘑鐮併€佹墜鏈哄彿绛夐渶鑴辨晱鍚庤緭鍑猴紙濡?Token 鍙繚鐣欏墠 6 浣嶅拰鍚?4 浣嶏級
+3. **禁止日志输出敏感信息**：Token、密码、手机号等需脱敏后输出（�?Token 只保留前 6 位和�?4 位）
 
-4. **绂佹纭紪鐮佸瘑閽?*锛欽WT\_SECRET銆佹暟鎹簱瀵嗙爜绛夊繀椤讳粠鐜鍙橀噺鎴栭厤缃腑蹇冭鍙栵紝绂佹鍐欐鍦ㄤ唬鐮?/ 閰嶇疆鏂囦欢涓?
-5. **绂佹闈?HTTPS 浼犺緭**锛氱敓浜х幆澧冩墍鏈夋帴鍙ｅ繀椤婚€氳繃 HTTPS 浼犺緭锛岄槻姝㈡暟鎹獌鍚?
-6. **绂佹寮卞瘑鐮佺瓥鐣?*锛氫笉寰楅檷浣庡瘑鐮侀暱搴︺€佸鏉傚害瑕佹眰锛屼笉寰椾娇鐢?MD5銆丼HA-1 绛夊急鍝堝笇绠楁硶
+4. **禁止硬编码密�?*：JWT\_SECRET、数据库密码等必须从环境变量或配置中心读取，禁止写死在代�?/ 配置文件�?
+5. **禁止�?HTTPS 传输**：生产环境所有接口必须通过 HTTPS 传输，防止数据窃�?
+6. **禁止弱密码策�?*：不得降低密码长度、复杂度要求，不得使�?MD5、SHA-1 等弱哈希算法
 
-7. **绂佹鐩存帴鏆撮湶 Actuator 鎺ュ彛**锛氱敓浜х幆澧冮渶閫氳繃 IP 鐧藉悕鍗曢檺鍒?Actuator 璁块棶锛岀姝㈠叏缃戝叕寮€
+7. **禁止直接暴露 Actuator 接口**：生产环境需通过 IP 白名单限�?Actuator 访问，禁止全网公开
 
-#### 鏁忔劅淇℃伅鑴辨晱绀轰緥锛堟棩蹇楄緭鍑猴級
+#### 敏感信息脱敏示例（日志输出）
 
 
 
 ```
-// 鉁?姝ｇ‘锛圱oken 鑴辨晱锛?
-log.info("鐢ㄦ埛鐧诲綍鎴愬姛锛寀serId: {}, token: {}\*\*\*\*{}",&#x20;
+// �?正确（Token 脱敏�?
+log.info("用户登录成功，userId: {}, token: {}\*\*\*\*{}",&#x20;
 
 &#x20;   userId,&#x20;
 
@@ -1744,8 +1744,8 @@ log.info("鐢ㄦ埛鐧诲綍鎴愬姛锛寀serId: {}, token: {}\*\*\*\*{}",&#x20
 
 );
 
-// 鉂?閿欒锛堣緭鍑哄畬鏁?Token锛?
-log.info("鐢ㄦ埛鐧诲綍鎴愬姛锛宼oken: {}", token);
+// �?错误（输出完�?Token�?
+log.info("用户登录成功，token: {}", token);
 ```
 
 
