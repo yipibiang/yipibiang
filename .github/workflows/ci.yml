@@ -26,12 +26,12 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        # 编译并打包
-        run: mvn clean package -DskipTests -f apps/services/user-service/pom.xml
+        # 编译并打包，-pl user-service -am 指定模块并自动构建依赖，兼容多模块
+        run: mvn clean package -DskipTests -f apps/services/pom.xml -pl user-service -am
 
       - name: Run tests
         # 单独运行测试（可选，如果测试失败这里会阻断流程）
-        run: mvn test -f apps/services/user-service/pom.xml
+        run: mvn test -f apps/services/pom.xml -pl user-service -am
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
