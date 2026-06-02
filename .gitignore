@@ -3,8 +3,15 @@ target/
 *.jar
 *.jar.original
 logs/
+**/logs/
 *.log
 .idea/
 *.iml
 .DS_Store
 node_modules/
+
+# Local env (use .env.dev.example as template)
+.env
+.env.*
+!.env.example
+!.env.*.example
